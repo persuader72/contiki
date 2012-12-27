@@ -54,3 +54,6 @@ contiki-cc2530dk.lib
 *.banks
 *.sensinode
 *.cc2530dk
+
+#protected workspace
+workspace/
