@@ -55,5 +55,6 @@ contiki-cc2530dk.lib
 *.sensinode
 *.cc2530dk
 
-#protected workspace
-workspace/
+# eclipse project files
+.cproject
+.project
