@@ -3,7 +3,7 @@ ifndef CONTIKI
 endif
 
 CONTIKI_TARGET_SOURCEFILES += contiki-colibri-platform.c \
-   	mrf49xa.c mrf49xa_arch.c adc.c\
+   	mrf49xa.c mrf49xa_arch.c adc.c \
    	infomem.c at25f512b.c
 
 ARCH=spi.c node-id.c sensors.c \
