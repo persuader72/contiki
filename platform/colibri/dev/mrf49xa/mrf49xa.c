@@ -1,5 +1,5 @@
 #include "contiki.h"
-#include "dev/mrf49xa.h"
+#include "mrf49xa.h"
 
 #include "net/packetbuf.h"
 #include "net/rime/rimestats.h"
