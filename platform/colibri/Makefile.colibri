@@ -3,12 +3,11 @@ ifndef CONTIKI
 endif
 
 CONTIKI_TARGET_SOURCEFILES += contiki-colibri-platform.c \
-   	mrf49xa.c mrf49xa_arch.c \
-   	battery-sensor.c radio-sensor.c \
+   	mrf49xa.c mrf49xa_arch.c adc.c\
    	infomem.c at25f512b.c
 
 ARCH=spi.c node-id.c sensors.c \
-     checkpoint-arch.c uart1.c slip_uart1.c uart1-putchar.c
+     uart1.c slip_uart1.c uart1-putchar.c
 
 
 CONTIKI_TARGET_DIRS = . dev apps net dev/mrf49xa

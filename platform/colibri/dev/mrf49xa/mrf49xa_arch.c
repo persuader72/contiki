@@ -33,7 +33,7 @@
 #include "contiki-net.h"
 
 #include "dev/spi.h"
-#include "dev/mrf49xa.h"
+#include "mrf49xa.h"
 #include "isr_compat.h"
 
 #include <stdio.h>

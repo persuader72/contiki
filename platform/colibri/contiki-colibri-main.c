@@ -32,7 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "dev/mrf49xa.h"
+#include "mrf49xa.h"
 #include "adc.h"
 //#include "dev/ds2411.h"
 #include "dev/leds.h"
