@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Swedish Institute of Computer Science
+ * Copyright (c) 2012, Swedish Institute of Computer Science
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -56,42 +56,8 @@
 #include "sys/autostart.h"
 #include "sys/profile.h"
 
-#if UIP_CONF_ROUTER
-
-#ifndef UIP_ROUTER_MODULE
-#ifdef UIP_CONF_ROUTER_MODULE
-#define UIP_ROUTER_MODULE UIP_CONF_ROUTER_MODULE
-#else /* UIP_CONF_ROUTER_MODULE */
-#define UIP_ROUTER_MODULE rimeroute
-#endif /* UIP_CONF_ROUTER_MODULE */
-#endif /* UIP_ROUTER_MODULE */
-
-extern const struct uip_router UIP_ROUTER_MODULE;
-#endif /* UIP_CONF_ROUTER */
-
 #ifndef WITH_UIP
 #define WITH_UIP 0
-#endif
-
-#if WITH_UIP
-#include "net/uip.h"
-#include "net/uip-fw.h"
-#include "net/uip-fw-drv.h"
-#include "net/uip-over-mesh.h"
-static struct uip_fw_netif slipif =
-  {UIP_FW_NETIF(192,168,1,2, 255,255,255,255, slip_send)};
-static struct uip_fw_netif meshif =
-  {UIP_FW_NETIF(172,16,0,0, 255,255,0,0, uip_over_mesh_send)};
-
-#endif /* WITH_UIP */
-
-#define UIP_OVER_MESH_CHANNEL 8
-#if WITH_UIP
-static uint8_t is_gateway;
-#endif /* WITH_UIP */
-
-#ifdef EXPERIMENT_SETUP
-#include "experiment-setup.h"
 #endif
 
 void radio_setup(void){
@@ -100,8 +66,6 @@ void radio_setup(void){
 	//uint8_t rssi = INFOMEM_STRUCT_A->radio.minRssi == 0xFF ? MRF49XA_RSSI_79DB : INFOMEM_STRUCT_A->radio.minRssi;
 	uint8_t band = INFOMEM_STRUCT_A->radio.band == 0xFF ? MRF49XA_BAND_868 : INFOMEM_STRUCT_A->radio.band;
 	uint8_t channel = INFOMEM_STRUCT_A->radio.channel > MRF49XA_MAX_CHANNEL ? MRF49XA_DEF_CHANNEL : INFOMEM_STRUCT_A->radio.channel;
-
-
 
 	//mrf49xa_setDataRate(baud,band);
 	//mrf49xa_setTxPwr(txpwr);
@@ -112,34 +76,9 @@ void radio_setup(void){
 
 void init_platform(void);
 
-/*---------------------------------------------------------------------------*/
-#if 0
-int
-force_float_inclusion()
-{
-  extern int __fixsfsi;
-  extern int __floatsisf;
-  extern int __mulsf3;
-  extern int __subsf3;
-
-  return __fixsfsi + __floatsisf + __mulsf3 + __subsf3;
-}
-#endif
-/*---------------------------------------------------------------------------*/
-void uip_log(char *msg) { puts(msg); }
-/*---------------------------------------------------------------------------*/
 #ifndef RF_CHANNEL
 #define RF_CHANNEL              26
 #endif
-/*---------------------------------------------------------------------------*/
-#if 0
-void
-force_inclusion(int d1, int d2)
-{
-  snprintf(NULL, 0, "%d", d1 % d2);
-}
-#endif
-/*---------------------------------------------------------------------------*/
 
 static void set_rime_addr(void) {
 	int i; rimeaddr_t n_addr;
@@ -183,7 +122,7 @@ int main(int argc, char **argv) {
 	rtimer_init();
 
 	/* Hardware initialization done! */
-	node_id_restore(); // Ripristina il node_id dalla memoria
+	//node_id_restore(); // Ripristina il node_id dalla memoria
 	                   // FIXME: da memorizzare in una memoria non riscrivibile.
 
   /* for setting "hardcoded" IEEE 802.15.4 MAC addresses */
@@ -195,7 +134,7 @@ int main(int argc, char **argv) {
   }
 #endif
 
-  random_init(node_id);
+  random_init(INFOMEM_STRUCT_A->addresses.nodeId[1]);
   leds_off(LEDS_BLUE);
 
   process_init(); // Initialize Contiki and our processes.
@@ -203,7 +142,6 @@ int main(int argc, char **argv) {
   ctimer_init();
   init_platform();
   set_rime_addr();
-
   radio_setup();
 
 
@@ -216,8 +154,8 @@ int main(int argc, char **argv) {
   }
 
   printf(CONTIKI_VERSION_STRING " started. ");
-  if(node_id > 0) {
-    printf("Node id is set to %u.\n", node_id);
+  if(INFOMEM_STRUCT_A->addresses.nodeId[1] > 0 && INFOMEM_STRUCT_A->addresses.nodeId[1]<0xFFFF) {
+    printf("Node id is set to %u.\n", INFOMEM_STRUCT_A->addresses.nodeId[1]);
   } else {
     printf("Node id is not set.\n");
   }

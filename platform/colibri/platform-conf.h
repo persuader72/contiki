@@ -77,7 +77,6 @@
 #define INFOMEM_RIME_ADDR			0x000C /* - 0x000F */
 #define INFOMEM_RIME_ADDR_SIZE		4
 
-
 /* Types for clocks and uip_stats */
 typedef unsigned short uip_stats_t;
 typedef unsigned long clock_time_t;
