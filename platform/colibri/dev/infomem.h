@@ -55,12 +55,43 @@ Berlin, 2006
   #error "infomem position (INFOMEM_START) and block size (INFOMEM_BLOCK_SIZE) need to be defined for the platform"
 #endif
 
+// Start at 0x0000
 struct infomem_addresses_t {
-	uint32_t nodeId;
+	uint16_t nodeId[2];
 	uint8_t macAddr[8];
 	uint8_t rimeAddr[4];
-};
+}; // Total size 0x0010
 
+/**
+ * baudarte:
+ *   0 = 2400
+ *   1 = 4800
+ *   2 = 9600
+ *   3 = 19200
+ *   4 = 38400
+ *(D)5 = 57600
+ *   6 = 115200
+ *   7 = 172400
+ * txPower:
+ *(D)0 = 0DB
+ *   1 = 2DB
+ *   2 = 5DB
+ *   3 = 7DB
+ *   4 = 10DB
+ *   5 = 12DB
+ *   6 = 15DB
+ *   7 = 17DB
+ * minRssi:
+ *   Unused
+ * channel:
+ *   [0-23] (D)==12
+ * band:
+ *   1 = 433
+ *   2 = 868
+ *   3 = 915
+ **/
+
+// Start at 0x0010
 struct infomem_radio_t {
 	uint8_t baudRate;
 	uint8_t txPower;
@@ -68,7 +99,7 @@ struct infomem_radio_t {
 	uint8_t channel;
 	uint8_t band;
 	uint8_t padding;
-};
+}; // Total size 0x0006
 
 struct infomem_a_t {
 	struct infomem_addresses_t addresses;
