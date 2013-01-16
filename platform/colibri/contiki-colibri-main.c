@@ -55,6 +55,7 @@
 #include "node-id.h"
 #include "sys/autostart.h"
 #include "sys/profile.h"
+#include "dev/pwm.h"
 
 #ifndef WITH_UIP
 #define WITH_UIP 0
@@ -120,6 +121,9 @@ int main(int argc, char **argv) {
 	leds_on(LEDS_BLUE);
 	leds_off(LEDS_RED);
 	rtimer_init();
+
+	pwm_init();
+
 
 	/* Hardware initialization done! */
 	//node_id_restore(); // Ripristina il node_id dalla memoria
@@ -187,6 +191,7 @@ int main(int argc, char **argv) {
 
   putchar('\n');
   autostart_start(autostart_processes);
+
 
   while(1) {
     int r;
