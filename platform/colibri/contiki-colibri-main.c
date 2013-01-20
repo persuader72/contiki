@@ -123,6 +123,8 @@ int main(int argc, char **argv) {
 	rtimer_init();
 
 	pwm_init();
+	pwm_set(INFOMEM_STRUCT_A->pwmSets.pwmPeriod,
+			INFOMEM_STRUCT_A->pwmSets.pwmDuty);
 
 
 	/* Hardware initialization done! */

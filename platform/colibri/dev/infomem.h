@@ -56,11 +56,11 @@ Berlin, 2006
 #endif
 
 // Start at 0x0000
-struct infomem_addresses_t {
+typedef struct infomem_addresses_t {
 	uint16_t nodeId[2];
 	uint8_t macAddr[8];
 	uint8_t rimeAddr[4];
-}; // Total size 0x0010
+}infomem_addresses; // Total size 0x0010
 
 /**
  * baudarte:
@@ -92,21 +92,41 @@ struct infomem_addresses_t {
  **/
 
 // Start at 0x0010
-struct infomem_radio_t {
+typedef struct infomem_radio_t {
 	uint8_t baudRate;
 	uint8_t txPower;
 	uint8_t minRssi;
 	uint8_t channel;
 	uint8_t band;
 	uint8_t padding;
-}; // Total size 0x0006
+}infomem_radio; // Total size 0x0006
 
-struct infomem_a_t {
-	struct infomem_addresses_t addresses;
-	struct infomem_radio_t radio;
-};
+typedef enum pinMode_t{
+	digitalIn  = 0,
+	digitalOut = 1,
+	pwmOut     = 2,
+	analogIn   = 3
+}pinMode;
 
-#define INFOMEM_STRUCT_A ((struct infomem_a_t *)INFOMEM_START)
+//this structure can define up to 8 gpio colibri pins
+typedef struct infomem_ioMode_t{
+	uint16_t pinsMode;
+}infomem_ioMode;
+
+typedef struct infomem_pwm_t{
+	uint16_t pwmPeriod;
+	uint16_t pwmDuty[2];
+}infomem_pwm;
+
+typedef struct infomem_a_t {
+	infomem_addresses addresses;
+	infomem_radio radio;
+	infomem_ioMode GpioMode;
+	infomem_pwm pwmSets;
+
+}infomem_a;
+
+#define INFOMEM_STRUCT_A ((infomem_a *)INFOMEM_START)
 
 /**
  * @brief	Read bytes from infomemory
