@@ -1,8 +1,8 @@
 /*
-Copyright 2006, Freie Universitaet Berlin. All rights reserved.
+Copyright 2013, CBL Electronics srl + Siralab srl. All rights reserved.
 
-These sources were developed at the Freie Universit�t Berlin, Computer
-Systems and Telematics group.
+These sources were developed from CBL Electronics srl + Siralab srl,
+Mote automation system development
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are
@@ -15,7 +15,7 @@ notice, this list of conditions and the following disclaimer.
 notice, this list of conditions and the following disclaimer in the
 documentation and/or other materials provided with the distribution.
 
-- Neither the name of Freie Universitaet Berlin (FUB) nor the names of its
+- Neither the name of CBL Electronics srl + Siralab srl nor the names of its
 contributors may be used to endorse or promote products derived from
 this software without specific prior written permission.
 
@@ -32,23 +32,25 @@ whether in contract, strict liability, or tort (including negligence
 or otherwise) arising in any way out of the use of this software, even
 if advised of the possibility of such damage.
 
-This implementation was developed by the CST group at the FUB.
+This implementation was developed by the Andrea Cannavicci and Stefano
+Pagnottelli at the CBL Electronics srl + Siralab srl.
 
 For documentation and questions please use the web site
-http://scatterweb.mi.fu-berlin.de and the mailinglist
-scatterweb@lists.spline.inf.fu-berlin.de (subscription via the Website).
-Berlin, 2006
+http://www.cblelectronics.com.
+Todi, 2013
 */
 
 /**
- * @file		infomem.h
- * @addtogroup		storage
- * @brief		MSP430 Infomemory Storage
+ * @file		pwm.h
+ * @addtogroup  peripherial
+ * @brief		MSP430 pwm generation
  *
- * @author		Michael Baar	<baar@inf.fu-berlin.de>
+ * @author		Andrea Cannavicci <andrea.cannavicci@cblelectronics.com>
  */
 #ifndef PWM_H
 #define PWM_H
+
+#define PWM_CHANNELS 2
 
 void pwm_init(void);
 void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty[]);
