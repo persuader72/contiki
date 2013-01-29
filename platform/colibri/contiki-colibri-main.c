@@ -55,6 +55,7 @@
 #include "node-id.h"
 #include "sys/autostart.h"
 #include "sys/profile.h"
+
 #include "dev/pwm.h"
 
 #ifndef WITH_UIP
@@ -177,6 +178,11 @@ int main(int argc, char **argv) {
                          NETSTACK_RDC.channel_check_interval()),
          RF_CHANNEL);
 
+  /**
+   * Serial line configuration
+   * using operating system standard consumer poreces....
+   * TODO: Implement our consumer precess to handle binary data
+   **/
   uart1_set_input(serial_line_input_byte);
   serial_line_init();
   leds_off(LEDS_GREEN);
