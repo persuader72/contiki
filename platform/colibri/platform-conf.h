@@ -184,7 +184,7 @@ typedef unsigned long off_t;
 #define MRF49XA_EDGE_FALL_INT()             do { P2IES |=  BV(MRF49XA_IRQ_PIN); } while (0)
 
 
-// Colibri module general purpose pin definition
+/*// Colibri module general purpose pin definition
 #define COLIBRI_GPIO_PINS 2
 
 #define PIN0SEL   P1SEL
@@ -193,6 +193,6 @@ typedef unsigned long off_t;
 
 #define PIN1SEL   P1SEL
 #define PIN1DIR   P1DIR
-#define PIN1BIT   BIT2
+#define PIN1BIT   BIT2*/
 
 #endif /* __PLATFORM_CONF_H__ */

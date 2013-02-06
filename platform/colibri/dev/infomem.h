@@ -102,10 +102,10 @@ typedef struct infomem_radio_t {
 }infomem_radio; // Total size 0x0006
 
 typedef enum pinMode_t{
-	digitalIn  = 0,
-	digitalOut = 1,
-	pwmOut     = 2,
-	analogIn   = 3
+	pwmOut     = 0,
+	analogIn   = 1,
+	digitalOut = 2,
+	digitalIn  = 3
 }pinMode;
 
 //this structure can define up to 8 gpio colibri pins
