@@ -50,6 +50,97 @@ Todi, 2013
 #ifndef PINIO_H
 #define PINIO_H
 
+
+// ********************** PIN 0 ********************
+#define PIN0_HAS_ADC 1
+#define PIN0_HAS_PWM 0
+#define PIN0_HAS_DIO 1
+
+#define PIN0_ADC_PORT(type)   P6##type
+#define PIN0_ADC_PIN          BIT0
+#define PIN0_PWM_PORT(type)
+#define PIN0_PWM_PIN
+#define PIN0_DIO_PORT(type)   P6##type
+#define PIN0_DIO_PIN          BIT0
+
+// ********************** PIN 1 ********************
+#define PIN1_HAS_ADC 0
+#define PIN1_HAS_PWM 0
+#define PIN1_HAS_DIO 1
+
+#define PIN1_ADC_PORT(type)
+#define PIN1_ADC_PIN
+#define PIN1_PWM_PORT(type)
+#define PIN1_PWM_PIN
+#define PIN1_DIO_PORT(type)   P6##type
+#define PIN1_DIO_PIN          BIT1
+
+
+// ********************** PIN 2 ********************
+#define PIN2_HAS_ADC 0
+#define PIN2_HAS_PWM 0
+#define PIN2_HAS_DIO 1
+
+#define PIN2_ADC_PORT(type)
+#define PIN2_ADC_PIN
+#define PIN2_PWM_PORT(type)
+#define PIN2_PWM_PIN
+#define PIN2_DIO_PORT(type)   P6##type
+#define PIN2_DIO_PIN          BIT0
+
+
+// ********************** PIN 3 ********************
+#define PIN3_HAS_ADC 1
+#define PIN3_HAS_PWM 1
+#define PIN3_HAS_DIO 1
+
+#define PIN3_ADC_PORT(type)   P6##type
+#define PIN3_ADC_PIN          BIT1
+#define PIN3_PWM_PORT(type)   P1##type
+#define PIN3_PWM_PIN          BIT2
+#define PIN3_DIO_PORT(type)   P6##type
+#define PIN3_DIO_PIN          BIT1
+
+
+// ********************** PIN 4 ********************
+#define PIN4_HAS_ADC 1
+#define PIN4_HAS_PWM 1
+#define PIN4_HAS_DIO 1
+
+#define PIN4_ADC_PORT(type)   P6##type
+#define PIN4_ADC_PIN          BIT2
+#define PIN4_PWM_PORT(type)   P1##type
+#define PIN4_PWM_PIN          BIT3
+#define PIN4_DIO_PORT(type)   P6##type
+#define PIN4_DIO_PIN          BIT3
+
+// ********************** PIN 5 ********************
+#define PIN5_HAS_ADC 1
+#define PIN5_HAS_PWM 0
+#define PIN5_HAS_DIO 1
+
+#define PIN5_ADC_PORT(type)   P6##type
+#define PIN5_ADC_PIN          BIT3
+#define PIN5_PWM_PORT(type)
+#define PIN5_PWM_PIN
+#define PIN5_DIO_PORT(type)   P6##type
+#define PIN5_DIO_PIN          BIT3
+
+// ********************** PIN 6 ********************
+#define PIN6_HAS_ADC 1
+#define PIN6_HAS_PWM 0
+#define PIN6_HAS_DIO 1
+
+#define PIN6_ADC_PORT(type)   P6##type
+#define PIN6_ADC_PIN          BIT4
+#define PIN6_PWM_PORT(type)
+#define PIN6_PWM_PIN
+#define PIN6_DIO_PORT(type)   P6##type
+#define PIN6_DIO_PIN          BIT4
+
+
+
+
 #define COLIBRI_IO_PINS 7
 
 void pinIO_init(void);
