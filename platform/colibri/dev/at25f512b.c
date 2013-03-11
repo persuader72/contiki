@@ -8,12 +8,12 @@ void at52f512_read(uint32_t address, uint8_t *buff, uint8_t len){
 	AT25F512_WT_BUSY(busy);
 
 	AT25F512_SPI_START((uint8_t)at25f512b_ReadPage);
-	AT25F512_SPI_BYTE_WRITE((address>>16)&0xff);
-	AT25F512_SPI_BYTE_WRITE((address>>8 )&0xff);
-	AT25F512_SPI_BYTE_WRITE((address    )&0xff);
+	AT25F512_SPI_BYTE_WRITE((uint8_t)(address>>16)&0xff);
+	AT25F512_SPI_BYTE_WRITE((uint8_t)(address>>8 )&0xff);
+	AT25F512_SPI_BYTE_WRITE((uint8_t)(address    )&0xff);
 
 	uint8_t i;
-	for(i=0;i<len;i++){
+	for(i=0;i<len+1;i++){
 		AT25F512_SPI_BYTE_READ(&buff[i]);
 	}
 	AT25F512_SPI_STOP(0);
@@ -32,8 +32,8 @@ void at52f512_write(uint32_t address, uint8_t *buff, uint8_t len){
 	AT25F512_SPI_BYTE_WRITE((address    )&0xff);
 
 	uint8_t i;
-	for(i=0;i<len;i++){
-		if(i!=(len-1))
+	for(i=0;i<len+1;i++){
+		if(i!=len)
 			AT25F512_SPI_BYTE_WRITE(buff[i]);
 		else
 			AT25F512_SPI_STOP(buff[i]);
@@ -119,6 +119,7 @@ uint16_t at25f512_RdID(){
 	for(i=0;i<2;i++)
 		AT25F512_SPI_BYTE_READ((((uint8_t*)&id)+i));
 	AT25F512B_SPI_DISABLE();
+	//printf("id: %.4x\n",id);
 	return id;
 }
 
