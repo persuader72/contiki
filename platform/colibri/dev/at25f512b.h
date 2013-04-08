@@ -5,6 +5,7 @@
 #include "dev/spi.h"
 
 #define RDY_BUSY 0x01
+#define CRC_BLOCK 32
 
 typedef enum _at25f512b_instr {
 	at25f512b_ReadPage  = 0x03,
@@ -21,6 +22,7 @@ typedef enum _at25f512b_instr {
 	at25f512b_RdID      = 0x15,
 	at25f512b_DP        = 0xb9,
 	at25f512b_ResumeDP  = 0xAB,
+	at25f512b_getCrc    = 0x00,
 
 } at25f512b_instr ;
 
@@ -83,6 +85,13 @@ do{ \
 	busy = at25f512_Rdsr() & RDY_BUSY; \
 }while(busy) \
 
+#define DEBUG 1
+#if DEBUG
+#include <stdio.h>
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...)
+#endif
 
 void at52f512_read(uint32_t address, uint8_t *buff, uint8_t len);
 void at52f512_write(uint32_t address, uint8_t *buff, uint8_t len);
@@ -91,5 +100,6 @@ void at25f512_rdOTP(uint32_t address, uint8_t *buff, uint8_t len);
 uint8_t at25f512_Rdsr();
 uint16_t at25f512_RdID();
 void at25f512_DP(at25f512b_dpMode mode);
+uint16_t at25f512b_crc(uint32_t address, uint32_t len);
 
 #endif /* AT25F512B_H */
