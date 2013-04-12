@@ -22,7 +22,7 @@ typedef enum _at25f512b_instr {
 	at25f512b_RdID      = 0x15,
 	at25f512b_DP        = 0xb9,
 	at25f512b_ResumeDP  = 0xAB,
-	at25f512b_getCrc    = 0x00,
+	at25f512b_getCrc    = 0x00
 
 } at25f512b_instr ;
 
@@ -85,7 +85,7 @@ do{ \
 	busy = at25f512_Rdsr() & RDY_BUSY; \
 }while(busy) \
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
