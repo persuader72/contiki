@@ -115,7 +115,9 @@ int main(int argc, char **argv) {
 
 	leds_on(LEDS_RED);
 	clock_wait(2);
+#if SERIAL_LINE_OUTPUT_ENABLED
 	uart1_init(115200);
+#endif
 	clock_wait(1);
 	leds_on(LEDS_GREEN);
 	clock_wait(1);
@@ -178,13 +180,15 @@ int main(int argc, char **argv) {
                          NETSTACK_RDC.channel_check_interval()),
          RF_CHANNEL);
 
-  /**
-   * Serial line configuration
-   * using operating system standard consumer poreces....
-   * TODO: Implement our consumer precess to handle binary data
-   **/
+/**
+* Serial line configuration
+* using operating system standard consumer poreces....
+* TODO: Implement our consumer precess to handle binary data
+**/
+#if SERIAL_LINE_INPUT_ENABLED
   uart1_set_input(serial_line_input_byte);
   serial_line_init();
+#endif
   leds_off(LEDS_GREEN);
 
 #if TIMESYNCH_CONF_ENABLED
