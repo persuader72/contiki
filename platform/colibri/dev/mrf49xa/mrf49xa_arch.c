@@ -38,8 +38,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
-
+#include "dev/leds.h"
 /*
 #ifdef CC2420_CONF_SFD_TIMESTAMPS
 #define CONF_SFD_TIMESTAMPS CC2420_CONF_SFD_TIMESTAMPS
@@ -57,11 +56,9 @@
 ISR(MRF49XA_IRQ, mrf49xa_port2_interrupt)
 {
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
-  //printf("interrupt!!\n");
+  //PRINTF("interrupt!!\n");
   MRF49XA_DISABLE_FIFOP_INT();
   MRF49XA_CLEAR_FIFOP_INT();
-
-
 
   if(mrf49xa_interrupt()) {
     LPM4_EXIT;
@@ -77,7 +74,7 @@ void
 spi_init(void)
 {
 /*  // Initialize ports for communication with SPI units.
-	printf("SCK: %d\n",SCK);
+	PRINTF("SCK: %d\n",SCK);
 
   UCA0CTL1 |=  UCSWRST;                //reset usci
   UCA0CTL1 |=  UCSSEL_2;               //smclk while usci is reset
@@ -110,7 +107,7 @@ spi_init(void)
 
 	  //WDTCTL = WDTPW|WDTHOLD;                   // Stop watchdog timer
 
-	  P1DIR |= 0x03;                            // Set P1.0-1 to output direction
+	  //P1DIR |= 0x03;                            // Set P1.0-1 to output direction
 	  P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 	  P2SEL |= BIT7;                            // P2.7 option select
 

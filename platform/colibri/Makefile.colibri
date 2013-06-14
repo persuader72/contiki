@@ -3,7 +3,7 @@ ifndef CONTIKI
 endif
 
 CONTIKI_TARGET_SOURCEFILES += contiki-colibri-platform.c \
-   	mrf49xa.c mrf49xa_arch.c adc.c xmem.c button-sensor.c \
+   	mrf49xa.c mrf49xa_arch.c xmem.c adc.c button-sensor.c \
    	infomem.c at25f512b.c pwm.c pinIO.c
 
 CLEAN += symbols.c symbols.h
@@ -19,7 +19,7 @@ endif
 SMALL=1
 CONTIKI_TARGET_SOURCEFILES += $(ARCH) 
 
-MCU=msp430f5310
+MCU=msp430f5308
 include $(CONTIKI)/cpu/msp430/Makefile.msp430
 
 contiki-$(TARGET).a: ${addprefix $(OBJECTDIR)/,symbols.o}

@@ -45,39 +45,39 @@
 void
 leds_arch_init(void)
 {
-  P2DIR |= BIT0;
-  P2OUT |= BIT0;
-  P2OUT |= BIT1;
-  P2DIR |= BIT1;
-  P2DIR |= BIT2;
-  P2OUT |= BIT2;
+  P1DIR |= BIT5;
+  P1OUT |= BIT5;
+  P1OUT |= BIT6;
+  P1DIR |= BIT6;
+  P1DIR |= BIT7;
+  P1OUT |= BIT7;
 }
 /*---------------------------------------------------------------------------*/
 unsigned char
 leds_arch_get(void)
 {
-  return ((P2OUT & BIT2) ? 0 : LEDS_GREEN)
-    | ((P2OUT & BIT0) ? 0 : LEDS_YELLOW)
-    | ((P2OUT & BIT1) ? 0 : LEDS_RED);
+  return ((P1OUT & BIT5) ? 0 : LEDS_GREEN)
+    | ((P1OUT & BIT6) ? 0 : LEDS_YELLOW)
+    | ((P1OUT & BIT7) ? 0 : LEDS_RED);
 }
 /*---------------------------------------------------------------------------*/
 void
 leds_arch_set(unsigned char leds)
 {
   if(leds & LEDS_GREEN) {
-	 P2OUT |= BIT2;
+	 P1OUT |= BIT5;
   } else {
-	 P2OUT &= ~BIT2;
+	 P1OUT &= ~BIT5;
   }
   if(leds & LEDS_YELLOW) {
-	P2OUT |= BIT0;
+	P1OUT |= BIT6;
   } else {
-    P2OUT &= ~BIT0;
+    P1OUT &= ~BIT6;
   }
   if(leds & LEDS_RED) {
-	P2OUT |= BIT1;
+	P1OUT |= BIT7;
   } else {
-    P2OUT &= ~BIT1;
+    P1OUT &= ~BIT7;
   }
 }
 /*---------------------------------------------------------------------------*/

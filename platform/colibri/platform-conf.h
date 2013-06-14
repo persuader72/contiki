@@ -126,8 +126,8 @@ typedef unsigned long off_t;
 // flash spi port is shared with mrf49xa port.
 //
 
-#define AT25F512B_CS         7       /* P1.7 Output */
-#define AT25F512B_PORT(type) P1##type /* P1.7 Output */
+#define AT25F512B_CS         1       /* P3.1 Output */
+#define AT25F512B_PORT(type) P3##type /* P3.1 Output */
 
 #define AT25F512B_SPI_ENABLE()  ( AT25F512B_PORT(OUT) &= ~BV(AT25F512B_CS) )
 #define AT25F512B_SPI_DISABLE() ( AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) )

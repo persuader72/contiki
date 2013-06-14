@@ -10,12 +10,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "dev/adc.h"
+#include "dev/leds.h"
 
 
 #define DEBUG 0
 #if DEBUG
 //#include <stdio.h>
-#define PRINTF(...) printf(__VA_ARGS__)
+#define PRINTF(...) PRINTF(__VA_ARGS__)
 #else
 #define PRINTF(...) do {} while (0)
 #endif
@@ -52,7 +53,7 @@ PROCESS(mrf49xa_process, "Mrf49xa driver");
 int getIRQstatus(void){
 	uint8_t irq;
 	irq =   P2IN;
-	//printf("p2: %x\n",irq & (1<<MRF49XA_IRQ_PIN) ? 1 : 0);
+	//PRINTF("p2: %x\n",irq & (1<<MRF49XA_IRQ_PIN) ? 1 : 0);
 	return (irq & (1<<MRF49XA_IRQ_PIN) ? 1 : 0);
 }
 
@@ -60,7 +61,7 @@ int getDioStatus(void)
 {
 	uint8_t dio;
 	dio =   P2IN;
-	//printf("dio: %x\n",dio & (1<<MRF49XA_DIO_PIN) ? 1 : 0);
+	//PRINTF("dio: %x\n",dio & (1<<MRF49XA_DIO_PIN) ? 1 : 0);
 	return (dio & (1<<MRF49XA_DIO_PIN) ? 1 : 0);
 
 }
@@ -105,7 +106,7 @@ void setBatteryTh(uint16_t mV){
 
 	th = (mV - 2250)/100;
 	th &= 0xf;
-	//printf ("th: 0x%.2X\n",th);
+	//PRINTF ("th: 0x%.2X\n",th);
 	setReg(MRF49XA_BCSREG,th);
 
 }
@@ -141,10 +142,10 @@ void mrf49xa_setDataRate(mrf49xa_baudRate dataRate){
 	uint8_t drpv = (uint8_t) dataRate;
 	drpv &= 0x7f;
 
-	//printf("drpe @ 0x%x\n",drpe);
-	//printf("drpv @ 0x%x\n",drpv);
+	//PRINTF("drpe @ 0x%x\n",drpe);
+	//PRINTF("drpv @ 0x%x\n",drpv);
 	drpv = drpv | drpe << 7;
-	printf("write MRF49XA_DRSREG @ 0x%x\n",drpv);
+	PRINTF("write MRF49XA_DRSREG @ 0x%x\n",drpv);
 	setReg(MRF49XA_DRSREG,drpv);*/
 
 	switch(dataRate){
@@ -207,16 +208,16 @@ void mrf49xa_setDataRate(mrf49xa_baudRate dataRate){
 
 	rxcreg &= 0x71F; //maschera dei bit per lasciare invariato FINTDIO, DIORT, RXLNA e reserttare RXBW
 	rxcreg |= rxbw;
-	//printf("write MRF49XA_RXCREG @ 0x%x\n",rxcreg);
+	//PRINTF("write MRF49XA_RXCREG @ 0x%x\n",rxcreg);
 	setReg(MRF49XA_RXCREG,rxcreg);
 
 	txcreg &= 0x7; //bit mask for leave otxpwr bits unchanged
 	txcreg |= modbw;
-	//printf("write MRF49XA_TXCREG @ 0x%x\n",txcreg);
+	//PRINTF("write MRF49XA_TXCREG @ 0x%x\n",txcreg);
 	setReg(MRF49XA_TXCREG,txcreg);
 
 	drpv = drpv | drpe << 7;
-	//printf("write MRF49XA_DRSREG @ 0x%x\n",drpv);
+	//PRINTF("write MRF49XA_DRSREG @ 0x%x\n",drpv);
 	setReg(MRF49XA_DRSREG,drpv);
 
 }
@@ -224,7 +225,7 @@ void mrf49xa_setDataRate(mrf49xa_baudRate dataRate){
 void mrf49xa_setTxPwr(mrf49xa_oTxPwr txPwr){
 	txcreg &= 0xf0; //bit mask for leave MODBW bits unchanged
 	txcreg |= txPwr <<  OTXPWR_BIT;
-	//printf("write MRF49XA_TXCREG @ 0x%x\n",txcreg);
+	//PRINTF("write MRF49XA_TXCREG @ 0x%x\n",txcreg);
 	setReg(MRF49XA_TXCREG,txcreg);
 }
 
@@ -232,7 +233,7 @@ void mrf49xa_setRxRssi(mrf49xa_rxRSSI rxRSSI, mrf49xa_gainLNA gainLNA){
 	rxcreg &= 0x7e0; //bit mask for leave RXBW FINTDIO DIORT bits unchanged
 	rxcreg |= rxRSSI;
 	rxcreg |= gainLNA;
-	//printf("write MRF49XA_RXCREG @ 0x%x\n",rxcreg);
+	//PRINTF("write MRF49XA_RXCREG @ 0x%x\n",rxcreg);
 	setReg(MRF49XA_RXCREG,rxcreg);
 }
 
@@ -247,12 +248,12 @@ void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch){
 	//banda
 	gencreg &= 0xCF; // leave TSDEN, FIFOEN, LCS bit unchanged
 	gencreg |= band << BAND_BIT;
-	//printf("write MRF49XA_GENCREG @ %x\n",gencreg);
+	//PRINTF("write MRF49XA_GENCREG @ %x\n",gencreg);
 	setReg(MRF49XA_GENCREG,gencreg);
 
 	//canale
 	uint16_t freqb = 96+ch*166+ch/2+ch%2;
-	//printf("write MRF49XA_CFSREG @ %d\n",freqb);
+	//PRINTF("write MRF49XA_CFSREG @ %d\n",freqb);
 	setReg(MRF49XA_CFSREG,freqb);
 
 }
@@ -264,12 +265,12 @@ void testSpi(void){
     setBatteryTh(2500);
     readSR(&reg);
     reg &= LBTD_BIT;
-    printf("LBTD_BIT: %X\t",reg);
+    PRINTF("LBTD_BIT: %X\t",reg);
 
     setBatteryTh(3400);
     readSR(&reg);
     reg &= LBTD_BIT;
-    printf("LBTD_BIT: %X\n",reg);
+    PRINTF("LBTD_BIT: %X\n",reg);
 }
 
 uint8_t mrf49xa_get_byte(void)
@@ -284,7 +285,6 @@ uint8_t mrf49xa_get_byte(void)
 int
 mrf49xa_interrupt(void)
 {
-
   uint16_t reg;
   uint8_t adcStatus;
 
@@ -292,7 +292,7 @@ mrf49xa_interrupt(void)
 	 if (getDioStatus()){
 		 mrf49xa_recvlen=mrf49xa_pending=mrf49xa_get_byte();
 		 if (mrf49xa_pending > PACKETBUF_SIZE + PACKETBUF_HDR_SIZE){
-			 printf("%d\n",mrf49xa_pending);
+			 PRINTF("%d\n",mrf49xa_pending);
 			 mrf49xa_recvlen=mrf49xa_pending = 0;
 	    	 setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
 	    	 setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
@@ -327,7 +327,7 @@ mrf49xa_interrupt(void)
     		 start_adc(ADC_CH7);                        // avvio una nuova conversione
     	 }
      }
-     //printf("%c\n",*(mrf49xaptr-1));
+     //PRINTF("%c\n",*(mrf49xaptr-1));
      if(!--mrf49xa_pending) {
     	 //mrf49xa_get_byte();
     	 last_packet_timestamp = mrf49xa_start_time;
@@ -385,16 +385,16 @@ PROCESS_THREAD(mrf49xa_process, ev, data)
 		  int i;
 		  for(i=0;i<last_packet_len;i++){
 			if (( ((char *)mrf49xabuf)[i] >= ' ') && (((char *)mrf49xabuf)[i] <= '~') )
-				printf ("%c",((char *)mrf49xabuf)[i]);
+				PRINTF ("%c",((char *)mrf49xabuf)[i]);
 			else
-				printf (" 0x%02x",((uint8_t *)mrf49xabuf)[i]);
+				PRINTF (" 0x%02x",((uint8_t *)mrf49xabuf)[i]);
 		  }
-		  printf ("\n");
+		  PRINTF ("\n");
 	#endif
 
 
 	if (rssiSample){
-		//printf("sample: %d\n",rssiSample);
+		//PRINTF("sample: %d\n",rssiSample);
 		rssi /= rssiSample;
 	    packetbuf_set_attr(PACKETBUF_ATTR_RSSI, (uint16_t)rssi);
 
@@ -420,7 +420,7 @@ mrf49xa_init(mrf49xa_baudRate baud, mrf49xa_oTxPwr pwr, mrf49xa_band band, uint8
 	rssi = 0;
 	rssiSample = 0;
 
-    printf("MRF49XA init...\n");
+    PRINTF("MRF49XA init...\n");
 	MRF49XA_DISABLE_FIFOP_INT();
     rxcreg  = MRF49XA_LNA_20DB | 0x500; //valore del registro MRF49XA_RXCREG
     txcreg  = 0x0;              //valore del registro MRF49XA_TXCREG
@@ -464,7 +464,7 @@ mrf49xa_init(mrf49xa_baudRate baud, mrf49xa_oTxPwr pwr, mrf49xa_band band, uint8
     //clock_wait(1);
     //mrf49xa_get_byte();
     //mrf49xa_get_byte();
-    //printf("sts reg: %x\n",reg);
+    //PRINTF("sts reg: %x\n",reg);
     MRF49XA_CLEAR_FIFOP_INT();
 	MRF49XA_ENABLE_FIFOP_INT();
 	process_start(&mrf49xa_process, NULL);
@@ -472,7 +472,7 @@ mrf49xa_init(mrf49xa_baudRate baud, mrf49xa_oTxPwr pwr, mrf49xa_band band, uint8
 	mrf49xa_setDataRate(baud);
 	mrf49xa_setTxPwr(pwr);
 
-    printf("Done!!!\n");
+    //PRINTF("Done!!!\n");
 
     return 0;
 }
@@ -481,17 +481,18 @@ static int
 prepare(const void *payload, unsigned short payload_len)
 {
 	int i;
+
 	//MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
 	MRF49XA_DISABLE_FIFOP_INT();
 #if DEBUG
-	printf("len: %d\n",payload_len);
+	PRINTF("len: %d\n",payload_len);
 	for (i=0;i<payload_len;i++){
 		if (( ((char *)payload)[i] >= ' ') && (((char *)payload)[i] <= '~') )
-			printf ("%c",((char *)payload)[i]);
+			PRINTF ("%c",((char *)payload)[i]);
 		else
-			printf (" 0x%02x",((uint8_t *)payload)[i]);
+			PRINTF (" 0x%02x",((uint8_t *)payload)[i]);
 	}
-	printf ("\n");
+	PRINTF ("\n");
 #endif
     // Turn off receiver, enable the TX register
 	setReg(MRF49XA_PMCREG,    0);                  // RegisterSet(PMCREG);
@@ -525,7 +526,7 @@ prepare(const void *payload, unsigned short payload_len)
         	CRCDI = ((uint8_t *)payload)[i];
         	break;
     	}
-    	//printf("sent byte %d\n",i);
+    	//PRINTF("sent byte %d\n",i);
     	i++;
     }
 
@@ -541,7 +542,7 @@ prepare(const void *payload, unsigned short payload_len)
 	while(getIRQstatus());
     stopFifo(0xAA);  //dummy byte to flush fifo
 
-    //printf("CRC: 0x%04X\n",CRCINIRES);
+    //PRINTF("CRC: 0x%04X\n",CRCINIRES);
 
     // Turn off the transmitter, disable the Tx register
     setReg(MRF49XA_PMCREG,    0xd9);    //RegisterSet(PMCREG | 0x0080);
@@ -554,6 +555,7 @@ prepare(const void *payload, unsigned short payload_len)
     uint16_t reg;
     readSR(&reg);                     //serve a far tornare alto IRQ
 
+    MRF49XA_IRQ_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
     MRF49XA_CLEAR_FIFOP_INT();
 	MRF49XA_ENABLE_FIFOP_INT();
 
@@ -599,16 +601,34 @@ pending_packet(void)
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-static int
-on(void)
-{
+static int on(void) {
+	//leds_on(LEDS_BLUE);
+	//spi_init();
+	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
+	P2SEL |= BIT7;                            // P2.7 option select
+	UCA0CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
+	clock_wait(30);
+	// antenna tuning on startup
+	setReg(MRF49XA_PMCREG,     0x21); //RegisterSet(PMCREG | 0x0020);           // turn on the transmitter
+	clock_wait(3);                          // wait 10ms for oscillator to stablize
+	// end of antenna tuning
+	setReg(MRF49XA_PMCREG,     0xd9); //RegisterSet(PMCREG | 0x0080);           // turn off transmitter, turn on receiver
+
   return 0;
 }
 /*---------------------------------------------------------------------------*/
-static int
-off(void)
-{
-  return 0;
+static int off(void) {
+	//leds_off(LEDS_BLUE);
+	setReg(MRF49XA_PMCREG,     0x1);
+	clock_wait(30);
+	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
+	P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
+	P2SEL &= ~BIT7;
+	// P2.7 option select
+	P3DIR |= BIT3; P3OUT &= ~BIT3;
+	P2DIR |= BIT7; P2OUT &= ~BIT7;
+	//P3DIR &= ~BIT4;
+	return 0;
 }
 /*---------------------------------------------------------------------------*/
 const struct radio_driver mrf49xa_driver =

@@ -41,8 +41,8 @@ const struct sensors_sensor button_sensor;
 static struct timer debouncetimer;
 static int status(int type);
 
-HWCONF_PIN(BUTTON, 1, 1);
-HWCONF_IRQ(BUTTON, 1, 1);
+HWCONF_PIN(BUTTON, 1, 3);
+HWCONF_IRQ(BUTTON, 1, 3);
 
 /*---------------------------------------------------------------------------*/
 ISR(PORT1, irq_p1)
@@ -74,6 +74,11 @@ static int configure(int type, int c) {
     	  BUTTON_SELECT();
     	  BUTTON_MAKE_INPUT();
     	  BUTTON_ENABLE_IRQ();
+    	  P1DIR &= ~(1 << 2);
+    	  P6DIR &= ~(1 << 0);
+
+    	  P3DIR |= (1 << 1);
+    	  P3OUT |= (1 << 1);
       }
     } else {
     	BUTTON_DISABLE_IRQ();
