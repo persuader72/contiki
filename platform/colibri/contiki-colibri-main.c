@@ -236,7 +236,7 @@ int main(int argc, char **argv) {
        *(Address+4) = 0x0800;
        *Address = 0x9600;
 
-      P1OUT &= ~0x37; P1DIR |= 0x37;
+      //P1OUT &= ~0x37; P1DIR |= 0x37;
 
       if(colibri_deep_sleep) {
     	  leds_off(LEDS_RED);
