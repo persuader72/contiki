@@ -32,11 +32,8 @@
  */
 
 #include "dev/button-sensor.h"
-//#include "dev/mrf49xa/mrf49xa_arch.h"
 SENSORS(&button_sensor);
 
-void
-init_platform(void)
-{
+void init_platform(void) {
   process_start(&sensors_process, NULL);
 }

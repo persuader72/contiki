@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 	leds_off(LEDS_RED);
 	leds_off(LEDS_GREEN);
 	leds_off(LEDS_BLUE);
-	adc_init();
+	//adc_init();
 	leds_on(LEDS_RED);
 	clock_wait(2);
 #if SERIAL_LINE_OUTPUT_ENABLED
@@ -259,7 +259,12 @@ int main(int argc, char **argv) {
 		  //P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 		  //P2SEL |= BIT7;                            // P2.7 option select
     	  P4SEL |= (BIT4|BIT5);
-		  UCA1CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
+		  //UCA1CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
+		  /* XXX Clear pending interrupts before enable */
+		  UCA1IE &= ~UCRXIFG;
+		  UCA1IE &= ~UCTXIFG;
+		  UCA1CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine **before** enabling interrupts */
+		  UCA1IE |= UCRXIE;                        /* Enable UCA1 RX interrupt */
       }
 
       dint();
