@@ -65,7 +65,7 @@ void SetVcoreUp (unsigned int level)
 void msp430f53xx_init_dco(void)
 {
 	  UCSCTL3 |= SELREF_2;                      // Set DCO FLL reference = REFO
-	  UCSCTL4 |= SELA_1;                        // Set ACLK = REFO
+	  UCSCTL4 |= SELA_1;                        // Set ACLK = VLO
 
 	  // Increase Vcore setting to level1 to support fsystem=12MHz
 	  // NOTE: Change core voltage one level at a time..

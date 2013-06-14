@@ -606,6 +606,9 @@ static int on(void) {
 	//spi_init();
 	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 	P2SEL |= BIT7;                            // P2.7 option select
+	P2IFG = 0;
+	//UCA0IE &= ~UCRXIFG;
+	//UCA0IE &= ~UCTXIFG;
 	UCA0CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
 	clock_wait(30);
 	// antenna tuning on startup
@@ -619,7 +622,7 @@ static int on(void) {
 /*---------------------------------------------------------------------------*/
 static int off(void) {
 	//leds_off(LEDS_BLUE);
-	setReg(MRF49XA_PMCREG,     0x1);
+	setReg(MRF49XA_PMCREG,     0x0);
 	clock_wait(30);
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
 	P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select

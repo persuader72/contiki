@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 	leds_off(LEDS_RED);
 	leds_off(LEDS_GREEN);
 	leds_off(LEDS_BLUE);
-	//adc_init();
+	adc_init();
 	leds_on(LEDS_RED);
 	clock_wait(2);
 #if SERIAL_LINE_OUTPUT_ENABLED
@@ -233,8 +233,8 @@ int main(int argc, char **argv) {
       watchdog_stop();
 
       *Address = 0x9628;
-       *(Address+4) = 0x0800;
-       *Address = 0x9600;
+      *(Address+4) = 0x0800;
+      *Address = 0x9600;
 
       //P1OUT &= ~0x37; P1DIR |= 0x37;
 
@@ -243,8 +243,10 @@ int main(int argc, char **argv) {
     	  leds_off(LEDS_GREEN);
     	  leds_off(LEDS_BLUE);
 
+#if SERIAL_LINE_OUTPUT_ENABLED
     	  UCA1CTL1 |= UCSWRST;
     	  P4SEL &= ~(BIT4|BIT5);
+#endif
 
     	  //P5SEL &= ~(BIT6|BIT7);
     	  //P3SEL &= ~(BIT3|BIT4);                       // P3.3,4 option select
@@ -256,6 +258,7 @@ int main(int argc, char **argv) {
       //_BIS_SR(GIE | CPUOFF);
 
       if(colibri_deep_sleep) {
+#if SERIAL_LINE_OUTPUT_ENABLED
 		  //P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 		  //P2SEL |= BIT7;                            // P2.7 option select
     	  P4SEL |= (BIT4|BIT5);
@@ -264,7 +267,8 @@ int main(int argc, char **argv) {
 		  UCA1IE &= ~UCRXIFG;
 		  UCA1IE &= ~UCTXIFG;
 		  UCA1CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine **before** enabling interrupts */
-		  UCA1IE |= UCRXIE;                        /* Enable UCA1 RX interrupt */
+		  UCA1IE |= UCRXIE;                       /* Enable UCA1 RX interrupt */
+#endif
       }
 
       dint();
