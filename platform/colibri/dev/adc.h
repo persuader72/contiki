@@ -67,5 +67,6 @@ uint8_t checkAdcBusy();     // verifica dello stato dell'ADC
 uint16_t getAdcSample();     // lettura del dato campionato
 
 uint16_t get_adc(ADC_CH channel); //Misure singola dell'adc ad alta priorità
+void     adcOff();
 
 #endif /* __ADC_H__ */

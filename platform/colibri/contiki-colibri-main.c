@@ -88,28 +88,6 @@ void msp430f53xx_init_dco(void);
 #define RF_CHANNEL              26
 #endif
 
-void adcOff(){
-	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
-	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
-	  ADC10CTL0 &= ~ADC10ON;                    // ADC OFF
-	  //ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2
-
-	  // Configure internal reference
-	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
-	  REFCTL0 &= ~REFON;                       // Select internal ref = 2.5V
-												// Internal Reference ON
-}
-void adcOn(){
-	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
-	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
-	  ADC10CTL0 |= ADC10ON;         // 16 ADC10CLKs; ADC ON
-
-	  // Configure internal reference
-	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
-	  REFCTL0 |= REFON;                         // Internal Reference ON
-	  clock_delay(600);                         // Delay (~75us) for Ref to settle
-}
-
 
 static void set_rime_addr(void) {
 	int i; rimeaddr_t n_addr;

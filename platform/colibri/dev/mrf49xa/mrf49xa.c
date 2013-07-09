@@ -323,8 +323,8 @@ mrf49xa_interrupt(void)
 
   } else {
      *mrf49xaptr++ = mrf49xa_get_byte();
-     rssiSample++;
-     /*adcStatus = getAdcStatus();
+     //rssiSample++;
+     adcStatus = getAdcStatus();
      if (!(adcStatus & HIGH_PRIORITY_LOCK)){
     	 if(adcStatus == LOW_PRIORITY_LOCK){
     		 if(!checkAdcBusy()){
@@ -335,7 +335,7 @@ mrf49xa_interrupt(void)
     	 if (adcStatus & DIRTY || adcStatus == 0){ //se l'adc è sporco o non ho precedenti conversioni in corso
     		 start_adc(ADC_CH7);                        // avvio una nuova conversione
     	 }
-     }*/
+     }
      //PRINTF("%c\n",*(mrf49xaptr-1));
      if(!--mrf49xa_pending) {
     	 //mrf49xa_get_byte();
@@ -578,11 +578,7 @@ prepare(const void *payload, unsigned short payload_len)
 	MRF49XA_ENABLE_FIFOP_INT();
 
 
-	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
-	SPI_WRITE(0xB9);
-	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
-
-	//putchar('\n');
+  //putchar('\n');
   return 1;
 }
 /*---------------------------------------------------------------------------*/
@@ -628,6 +624,8 @@ static int on(void) {
 	//leds_on(LEDS_BLUE);
 	//spi_init();
 
+	  adc_init();
+
 	  // all input by default, set these as output
 	  MRF49XA_CSN_PORT(DIR) |= BV(MRF49XA_CSN_PIN);
 	  MRF49XA_IRQ_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
@@ -668,6 +666,12 @@ static int on(void) {
 /*---------------------------------------------------------------------------*/
 static int off(void) {
 	//leds_off(LEDS_BLUE);
+
+	adcOff();
+
+	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
+	SPI_WRITE(0xB9);
+	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
 
     setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 	setReg(MRF49XA_PMCREG,     0x0);
