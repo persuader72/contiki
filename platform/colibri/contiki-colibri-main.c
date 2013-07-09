@@ -33,6 +33,7 @@
 #include <string.h>
 
 #include "mrf49xa.h"
+#include "nullradio.h"
 #include "adc.h"
 //#include "dev/ds2411.h"
 #include "dev/leds.h"
@@ -87,6 +88,29 @@ void msp430f53xx_init_dco(void);
 #define RF_CHANNEL              26
 #endif
 
+void adcOff(){
+	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
+	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
+	  ADC10CTL0 &= ~ADC10ON;                    // ADC OFF
+	  //ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2
+
+	  // Configure internal reference
+	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
+	  REFCTL0 &= ~REFON;                       // Select internal ref = 2.5V
+												// Internal Reference ON
+}
+void adcOn(){
+	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
+	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
+	  ADC10CTL0 |= ADC10ON;         // 16 ADC10CLKs; ADC ON
+
+	  // Configure internal reference
+	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
+	  REFCTL0 |= REFON;                         // Internal Reference ON
+	  clock_delay(600);                         // Delay (~75us) for Ref to settle
+}
+
+
 static void set_rime_addr(void) {
 	int i; rimeaddr_t n_addr;
 
@@ -119,25 +143,77 @@ print_processes(struct process * const processes[])
 #define INIT_MEMORY_ADDR 0x0900
 unsigned int *Address = ((unsigned int*)INIT_MEMORY_ADDR);
 
+void uart1_SleepEnter(){
+	  /* RS232 */
+	  UCA1CTL1 |= UCSWRST;            /* Hold peripheral in reset state */
+
+	#if defined (__MSP430F5308) || defined (__MSP430F5310)
+	  P4SEL &= ~(BIT4|BIT5);  // P4.5 4.6 = USCI_A1 TXD/RXD
+	#else
+      // TODO
+	#endif
+
+	  /* Clear pending interrupts*/
+	  UCA1IE &= ~UCRXIFG;
+	  UCA1IE &= ~UCTXIFG;
+
+}
+
+void uart1_SleepExit(){
+	  P4SEL |= BIT4|BIT5;  // P4.5 4.6 = USCI_A1 TXD/RXD
+
+	  /* XXX Clear pending interrupts before enable */
+	  UCA1IE &= ~UCRXIFG;
+	  UCA1IE &= ~UCTXIFG;
+
+	  UCA1CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine **before** enabling interrupts */
+	  UCA1IE |= UCRXIE;                        /* Enable UCA1 RX interrupt */
+}
+
+void deepSleepEnter(void){
+	  uart1_SleepEnter();
+	  // Port Configuration
+	  P1OUT = 0x00;P2OUT = BIT5;P3OUT = BIT2|BIT1; P4OUT = 0x00;P5OUT = 0x00;P6OUT = 0x00;
+	  PJOUT = 0x00;
+	  P1DIR = 0xFF;P2DIR = ~ (BIT6|BIT2|BIT4);P3DIR = 0xFF;P4DIR = 0xFF;P5DIR = 0xFF; P6DIR = ~ BIT7;
+	  PJDIR = 0xFF;
+
+	  //watchdog_stop();
+	  //__bis_SR_register(GIE | LPM3_bits);
+	  //watchdog_start();
+}
+
+void deepSleepExit(){
+	uart1_SleepExit();
+	//putchar('e');
+	//putchar('\n');
+}
+
+
 int main(int argc, char **argv) {
 	msp430_cpu_init();
-	clock_init();
 	leds_init();
+	leds_on(LEDS_RED|LEDS_GREEN|LEDS_BLUE);
 	leds_off(LEDS_RED);
 	leds_off(LEDS_GREEN);
 	leds_off(LEDS_BLUE);
-	adc_init();
-	leds_on(LEDS_RED);
+	clock_init();
+
+
+	//adc_init();
+	//leds_on(LEDS_RED);
 	clock_wait(2);
 #if SERIAL_LINE_OUTPUT_ENABLED
 	uart1_init(115200);
 #endif
+
 	clock_wait(1);
 	leds_on(LEDS_GREEN);
 	clock_wait(1);
 	leds_on(LEDS_BLUE);
 	leds_off(LEDS_RED);
 	rtimer_init();
+
 
 	//pwm_init();
 	//pwm_set(INFOMEM_STRUCT_A->pwmSets.pwmPeriod,INFOMEM_STRUCT_A->pwmSets.pwmDuty);
@@ -161,6 +237,7 @@ int main(int argc, char **argv) {
   ctimer_init();
   init_platform();
   set_rime_addr();
+
   radio_setup();
 
   {
@@ -178,15 +255,23 @@ int main(int argc, char **argv) {
     PRINTF("Node id is not set.\n");
   }
 
+
   NETSTACK_RDC.init();
   NETSTACK_MAC.init();
   NETSTACK_NETWORK.init();
+
+
+/*  while(1){
+	  deepSleepEnter();
+  }*/
 
   PRINTF("%s %s, channel check rate %lu Hz, radio channel %u\n",
          NETSTACK_MAC.name, NETSTACK_RDC.name,
          CLOCK_SECOND / (NETSTACK_RDC.channel_check_interval() == 0? 1:
                          NETSTACK_RDC.channel_check_interval()),
          RF_CHANNEL);
+
+
 
 /**
 * Serial line configuration
@@ -230,23 +315,18 @@ int main(int argc, char **argv) {
       ENERGEST_ON(ENERGEST_TYPE_LPM);
       /* We only want to measure the processing done in IRQs when we are asleep, so we discard the processing time done when we were awake. */
       energest_type_set(ENERGEST_TYPE_IRQ, irq_energest);
-      watchdog_stop();
 
-      *Address = 0x9628;
-      *(Address+4) = 0x0800;
-      *Address = 0x9600;
-
-      //P1OUT &= ~0x37; P1DIR |= 0x37;
 
       if(colibri_deep_sleep) {
-    	  leds_off(LEDS_RED);
-    	  leds_off(LEDS_GREEN);
-    	  leds_off(LEDS_BLUE);
-
+    	  deepSleepEnter();
+    	  /*P1OUT &= ~0xE1; P1DIR |= 0xE1;
+    	  //P6OUT |= 0x04;
+    	  P6OUT &= ~0x70; P6DIR |= 0x70;
+    	  PJOUT &= ~0xFF; PJDIR |= 0xFF;
 #if SERIAL_LINE_OUTPUT_ENABLED
     	  UCA1CTL1 |= UCSWRST;
     	  P4SEL &= ~(BIT4|BIT5);
-#endif
+#endif*/
 
     	  //P5SEL &= ~(BIT6|BIT7);
     	  //P3SEL &= ~(BIT3|BIT4);                       // P3.3,4 option select
@@ -254,21 +334,25 @@ int main(int argc, char **argv) {
     	  //UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
       }
 
+      //adcOff();
+      watchdog_stop();
       __bis_SR_register(GIE | LPM3_bits);
+      //adcOn();
       //_BIS_SR(GIE | CPUOFF);
 
       if(colibri_deep_sleep) {
-#if SERIAL_LINE_OUTPUT_ENABLED
+    	  deepSleepExit();
+/*#if SERIAL_LINE_OUTPUT_ENABLED
 		  //P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 		  //P2SEL |= BIT7;                            // P2.7 option select
     	  P4SEL |= (BIT4|BIT5);
 		  //UCA1CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
-		  /* XXX Clear pending interrupts before enable */
+		  // Clear pending interrupts before enable
 		  UCA1IE &= ~UCRXIFG;
 		  UCA1IE &= ~UCTXIFG;
-		  UCA1CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine **before** enabling interrupts */
-		  UCA1IE |= UCRXIE;                       /* Enable UCA1 RX interrupt */
-#endif
+		  UCA1CTL1 &= ~UCSWRST;                   // Initialize USCI state machine **before** enabling interrupts/
+		  UCA1IE |= UCRXIE;                       // Enable UCA1 RX interrupt/
+#endif*/
       }
 
       dint();

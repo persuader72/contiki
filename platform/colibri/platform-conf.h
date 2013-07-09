@@ -48,6 +48,7 @@
 
 /* CPU target speed in Hz */
 #define F_CPU  7372800uL
+//#define RTIMER_ARCH_SECOND 14000uL
 //#define F_CPU 16000000uL
 
 /* Our clock resolution, this is the same as Unix HZ. */

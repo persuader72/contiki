@@ -273,12 +273,20 @@ void testSpi(void){
     PRINTF("LBTD_BIT: %X\n",reg);
 }
 
+void mrf49xa_print_hex_byte(uint8_t byte) {
+	uint8_t nibble = (byte>>4) & 0x0F;
+	putchar(nibble<10?'0'+nibble:'A'+nibble-10);
+	nibble = byte & 0x0F;
+	putchar(nibble<10?'0'+nibble:'A'+nibble-10);
+}
+
 uint8_t mrf49xa_get_byte(void)
 {
   MRF49XA_FSELN_PORT(OUT) &= ~BV(MRF49XA_FSELN_PIN);
   uint16_t data = 0;
   MRF49XA_READ_RXFIFOREG(&data);   // read from fifo
   MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
+
   return (uint8_t) (data & 0xff);
 }
 
@@ -315,7 +323,8 @@ mrf49xa_interrupt(void)
 
   } else {
      *mrf49xaptr++ = mrf49xa_get_byte();
-     adcStatus = getAdcStatus();
+     rssiSample++;
+     /*adcStatus = getAdcStatus();
      if (!(adcStatus & HIGH_PRIORITY_LOCK)){
     	 if(adcStatus == LOW_PRIORITY_LOCK){
     		 if(!checkAdcBusy()){
@@ -326,7 +335,7 @@ mrf49xa_interrupt(void)
     	 if (adcStatus & DIRTY || adcStatus == 0){ //se l'adc è sporco o non ho precedenti conversioni in corso
     		 start_adc(ADC_CH7);                        // avvio una nuova conversione
     	 }
-     }
+     }*/
      //PRINTF("%c\n",*(mrf49xaptr-1));
      if(!--mrf49xa_pending) {
     	 //mrf49xa_get_byte();
@@ -361,7 +370,7 @@ uint8_t crcCheck(uint8_t *buff, uint8_t len){
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(mrf49xa_process, ev, data)
 {
-	//int len;
+  int i;
   PROCESS_BEGIN();
 
   PRINTF("mrf49xa_process: started\n");
@@ -370,6 +379,11 @@ PROCESS_THREAD(mrf49xa_process, ev, data)
       PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
       MRF49XA_DISABLE_FIFOP_INT();
       MRF49XA_CLEAR_FIFOP_INT();
+      /*putchar('R');
+      for(i=0;i<last_packet_len;i++)
+    	  mrf49xa_print_hex_byte(mrf49xabuf[i]);
+      putchar('\n');*/
+
 
       PRINTF("mrf49xa_process: calling receiver callback\n");
       if (crcCheck(mrf49xabuf,last_packet_len)){
@@ -481,6 +495,10 @@ static int
 prepare(const void *payload, unsigned short payload_len)
 {
 	int i;
+	/*putchar('T');
+	for(i=0;i<payload_len;i++)
+		mrf49xa_print_hex_byte(((uint8_t*)payload)[i]);
+	putchar('\n');*/
 
 	//MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
 	MRF49XA_DISABLE_FIFOP_INT();
@@ -560,6 +578,11 @@ prepare(const void *payload, unsigned short payload_len)
 	MRF49XA_ENABLE_FIFOP_INT();
 
 
+	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
+	SPI_WRITE(0xB9);
+	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
+
+	//putchar('\n');
   return 1;
 }
 /*---------------------------------------------------------------------------*/
@@ -604,11 +627,34 @@ pending_packet(void)
 static int on(void) {
 	//leds_on(LEDS_BLUE);
 	//spi_init();
+
+	  // all input by default, set these as output
+	  MRF49XA_CSN_PORT(DIR) |= BV(MRF49XA_CSN_PIN);
+	  MRF49XA_IRQ_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
+	  MRF49XA_DIO_PORT(DIR) &= ~BV(MRF49XA_DIO_PIN);
+
+	  MRF49XA_FSELN_PORT(DIR) |= BV(MRF49XA_FSELN_PIN);
+	  MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
+
+	  AT25F512B_PORT(DIR) |=  BV(AT25F512B_CS) ;
+	  AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
+
+	  //interrupt is input pin
+	  //MRF49XA_INT_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
+
+	  MRF49XA_DISABLE_FIFOP_INT();
+	  MRF49XA_EDGE_FALL_INT();
+	  MRF49XA_CLEAR_FIFOP_INT();
+	  MRF49XA_ENABLE_FIFOP_INT();
+
+
 	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 	P2SEL |= BIT7;                            // P2.7 option select
 	P2IFG = 0;
-	//UCA0IE &= ~UCRXIFG;
-	//UCA0IE &= ~UCTXIFG;
+
+	/* XXX Clear pending interrupts before enable */
+	UCA0IE &= ~UCRXIFG;
+	UCA0IE &= ~UCTXIFG;
 	UCA0CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
 	clock_wait(30);
 	// antenna tuning on startup
@@ -622,6 +668,8 @@ static int on(void) {
 /*---------------------------------------------------------------------------*/
 static int off(void) {
 	//leds_off(LEDS_BLUE);
+
+    setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 	setReg(MRF49XA_PMCREG,     0x0);
 	clock_wait(30);
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**

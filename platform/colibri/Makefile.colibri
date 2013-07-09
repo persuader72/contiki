@@ -5,6 +5,10 @@ endif
 CONTIKI_TARGET_SOURCEFILES += contiki-colibri-platform.c \
    	mrf49xa.c mrf49xa_arch.c xmem.c adc.c button-sensor.c \
    	infomem.c at25f512b.c pwm.c pinIO.c
+   	
+#CONTIKI_TARGET_SOURCEFILES += contiki-colibri-platform.c \
+#   	mrf49xa.c xmem.c adc.c button-sensor.c \
+#   	infomem.c at25f512b.c pwm.c pinIO.c nullradio.c   	
 
 CLEAN += symbols.c symbols.h
    	

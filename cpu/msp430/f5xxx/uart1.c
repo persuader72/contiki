@@ -107,6 +107,8 @@ uart1_init(unsigned long ubr)
   UCA1CTL1 &= ~UCSWRST;                   /* Initialize USCI state machine **before** enabling interrupts */
   UCA1IE |= UCRXIE;                        /* Enable UCA1 RX interrupt */
 }
+
+
 /*---------------------------------------------------------------------------*/
 ISR(USCI_A1, uart1_rx_interrupt)
 {

@@ -20,7 +20,7 @@
 #endif /* NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE */
 
 #ifndef NETSTACK_CONF_RADIO
-#define NETSTACK_CONF_RADIO   mrf49xa_driver
+#define NETSTACK_CONF_RADIO   mrf49xa_driver //nullradio_driver //
 #endif /* NETSTACK_CONF_RADIO */
 
 #ifndef NETSTACK_CONF_FRAMER
