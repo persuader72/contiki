@@ -150,6 +150,8 @@ void uart1_SleepExit(){
 
 void deepSleepEnter(void){
 	  uart1_SleepEnter();
+	  UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; // Set ACLK = VLO
+
 	  // Port Configuration
 	  P1OUT = 0x00;P2OUT = BIT5;P3OUT = BIT2|BIT1; P4OUT = 0x00;P5OUT = 0x00;P6OUT = 0x00;
 	  PJOUT = 0x00;
@@ -162,6 +164,7 @@ void deepSleepEnter(void){
 }
 
 void deepSleepExit(){
+	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
 	uart1_SleepExit();
 	//putchar('e');
 	//putchar('\n');
