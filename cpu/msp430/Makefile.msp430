@@ -30,16 +30,16 @@ ifndef CONTIKI_CPU_FAM_DIR
  ${error Unhandled MSP430 family: "$(MCU)"}
 endif
 
-CONTIKI_CPU_DIRS = $(CONTIKI_CPU_FAM_DIR) . dev
+CONTIKI_CPU_DIRS = $(CONTIKI_CPU_FAM_DIR) . dev USB F5xx_F6xx_Core_Lib USB/USB_API/USB_Common USB/USB_API/USB_CDC_API
 
-MSP430     = msp430.c flash.c clock.c leds.c leds-arch.c \
+MSP430     = msp430.c clock.c minileds.c leds-arch.c \
              watchdog.c lpm.c mtarch.c rtimer-arch.c
 UIPDRIVERS = me.c me_tabs.c slip.c crc16.c
 ELFLOADER  = elfloader.c elfloader-msp430.c symtab.c
 
 CONTIKI_TARGET_SOURCEFILES += $(MSP430) \
                               $(SYSAPPS) $(ELFLOADER) \
-                              $(UIPDRIVERS)
+                              #$(UIPDRIVERS)
 
 CONTIKI_SOURCEFILES        += $(CONTIKI_TARGET_SOURCEFILES)
 
@@ -145,8 +145,9 @@ endif
 ifndef CFLAGSNO
 CFLAGSNO = -Wall -mmcu=$(CC_MCU) $(CFLAGSWERROR)
 endif
-CFLAGS  += -Os -fno-strict-aliasing
-LDFLAGS += -mmcu=$(CC_MCU) -Wl,-Map=contiki-$(TARGET).map
+#CFLAGS  += -Os -fno-strict-aliasing
+CFLAGS  += -c -fstack-check -O2 -Wall -std=c99 -fpack-struct -fdata-sections -ffunction-sections
+LDFLAGS += -mmcu=$(CC_MCU) --gc-sections -Wl,-Map=contiki-$(TARGET).map
 
 ### These flags can reduce the code size and RAM usage with up to 10%
 ifeq ($(SMALL),1)

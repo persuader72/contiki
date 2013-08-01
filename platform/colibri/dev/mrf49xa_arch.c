@@ -35,11 +35,20 @@
 #include "dev/spi.h"
 #include "mrf49xa.h"
 #include "isr_compat.h"
+#include <dev/leds.h>
 
-#include <stdio.h>
-#include <string.h>
 #include "dev/leds.h"
+
+#define DEBUG 0
+#if DEBUG
+//#include <stdio.h>
+#define PRINTF(...) PRINTF(__VA_ARGS__)
+#else
+#define PRINTF(...) do {} while (0)
+#endif
+
 /*
+ *
 #ifdef CC2420_CONF_SFD_TIMESTAMPS
 #define CONF_SFD_TIMESTAMPS CC2420_CONF_SFD_TIMESTAMPS
 #endif // CC2420_CONF_SFD_TIMESTAMPS

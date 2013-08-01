@@ -7,7 +7,6 @@
 
 #include "sys/timetable.h"
 
-#include <stdio.h>
 #include <string.h>
 #include "dev/adc.h"
 #include "dev/leds.h"
@@ -16,7 +15,7 @@
 #define DEBUG 0
 #if DEBUG
 //#include <stdio.h>
-#define PRINTF(...) PRINTF(__VA_ARGS__)
+#define PRINTF(...) printf(__VA_ARGS__)
 #else
 #define PRINTF(...) do {} while (0)
 #endif
@@ -80,9 +79,7 @@ static void stopFifo(uint8_t data){
 }
 
 
-static void
-setReg(enum mrf49xa_register regname, unsigned value)
-{
+static void setReg(enum mrf49xa_register regname, unsigned value) {
   MRF49XA_WRITE_REG(regname, value);
   //while (!(UCA0IFG&UCTXIFG));               // USCI_A0 TX buffer ready?
   //UCA0TXBUF = 0xaa;                     // Transmit first character
@@ -368,62 +365,58 @@ uint8_t crcCheck(uint8_t *buff, uint8_t len){
 }
 
 /*---------------------------------------------------------------------------*/
-PROCESS_THREAD(mrf49xa_process, ev, data)
-{
-  int i;
-  PROCESS_BEGIN();
+PROCESS_THREAD(mrf49xa_process, ev, data) {
+	int i;
+	PROCESS_BEGIN();
+	PRINTF("mrf49xa_process: started\n");
 
-  PRINTF("mrf49xa_process: started\n");
-
-    while(1) {
-      PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-      MRF49XA_DISABLE_FIFOP_INT();
-      MRF49XA_CLEAR_FIFOP_INT();
-      /*putchar('R');
-      for(i=0;i<last_packet_len;i++)
-    	  mrf49xa_print_hex_byte(mrf49xabuf[i]);
-      putchar('\n');*/
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		MRF49XA_DISABLE_FIFOP_INT();
+		MRF49XA_CLEAR_FIFOP_INT();
+		  /*putchar('R');
+		  for(i=0;i<last_packet_len;i++)
+			  mrf49xa_print_hex_byte(mrf49xabuf[i]);
+		  putchar('\n');*/
 
 
-      PRINTF("mrf49xa_process: calling receiver callback\n");
-      if (crcCheck(mrf49xabuf,last_packet_len)){
+		PRINTF("mrf49xa_process: EVENT_POLL\n");
+		if (crcCheck(mrf49xabuf,last_packet_len)){
 
-		  packetbuf_clear();
-		  packetbuf_set_attr(PACKETBUF_ATTR_TIMESTAMP, last_packet_timestamp);
-		  memset(packetbuf_dataptr(),0,PACKETBUF_SIZE + PACKETBUF_HDR_SIZE);
-		  memcpy(packetbuf_dataptr(),mrf49xabuf,last_packet_len-2);
+			packetbuf_clear();
+			packetbuf_set_attr(PACKETBUF_ATTR_TIMESTAMP, last_packet_timestamp);
+			memset(packetbuf_dataptr(),0,PACKETBUF_SIZE + PACKETBUF_HDR_SIZE);
+			memcpy(packetbuf_dataptr(),mrf49xabuf,last_packet_len-2);
 
-		  packetbuf_set_datalen(last_packet_len-2);
-		  PRINTF("recv len: %d\n",last_packet_len-2);
-	#if 0
-		  int i;
-		  for(i=0;i<last_packet_len;i++){
+			packetbuf_set_datalen(last_packet_len-2);
+			PRINTF("recv len: %d\n",last_packet_len-2);
+#if 0
+			int i;
+			for(i=0;i<last_packet_len;i++){
 			if (( ((char *)mrf49xabuf)[i] >= ' ') && (((char *)mrf49xabuf)[i] <= '~') )
 				PRINTF ("%c",((char *)mrf49xabuf)[i]);
 			else
 				PRINTF (" 0x%02x",((uint8_t *)mrf49xabuf)[i]);
-		  }
-		  PRINTF ("\n");
-	#endif
+			}
+			PRINTF ("\n");
+#endif
 
 
-	if (rssiSample){
-		//PRINTF("sample: %d\n",rssiSample);
-		rssi /= rssiSample;
-	    packetbuf_set_attr(PACKETBUF_ATTR_RSSI, (uint16_t)rssi);
+			if (rssiSample){
+				//PRINTF("sample: %d\n",rssiSample);
+				rssi /= rssiSample;
+				packetbuf_set_attr(PACKETBUF_ATTR_RSSI, (uint16_t)rssi);
+			} else {
+				packetbuf_set_attr(PACKETBUF_ATTR_RSSI, 0);
+			}
 
+			PRINTF("mrf49xa_process: input\n");
+			NETSTACK_RDC.input();
+		}
+		mrf49xa_pending = 0;
+		MRF49XA_ENABLE_FIFOP_INT();
 	}
-	else
-	    packetbuf_set_attr(PACKETBUF_ATTR_RSSI, 0);
-
-      NETSTACK_RDC.input();
-      }
-    mrf49xa_pending = 0;
-    MRF49XA_ENABLE_FIFOP_INT();
-  }
-
-  PROCESS_END();
-
+	PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
 int
@@ -623,28 +616,24 @@ pending_packet(void)
 static int on(void) {
 	//leds_on(LEDS_BLUE);
 	//spi_init();
+	adc_init();
+	// all input by default, set these as output
+	MRF49XA_CSN_PORT(DIR) |= BV(MRF49XA_CSN_PIN);
+	MRF49XA_IRQ_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
+	MRF49XA_DIO_PORT(DIR) &= ~BV(MRF49XA_DIO_PIN);
 
-	  adc_init();
+	MRF49XA_FSELN_PORT(DIR) |= BV(MRF49XA_FSELN_PIN);
+	MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
 
-	  // all input by default, set these as output
-	  MRF49XA_CSN_PORT(DIR) |= BV(MRF49XA_CSN_PIN);
-	  MRF49XA_IRQ_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
-	  MRF49XA_DIO_PORT(DIR) &= ~BV(MRF49XA_DIO_PIN);
+	//AT25F512B_PORT(DIR) |=  BV(AT25F512B_CS) ;
+	//AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
+	//interrupt is input pin
+	//MRF49XA_INT_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
 
-	  MRF49XA_FSELN_PORT(DIR) |= BV(MRF49XA_FSELN_PIN);
-	  MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
-
-	  AT25F512B_PORT(DIR) |=  BV(AT25F512B_CS) ;
-	  AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
-
-	  //interrupt is input pin
-	  //MRF49XA_INT_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
-
-	  MRF49XA_DISABLE_FIFOP_INT();
-	  MRF49XA_EDGE_FALL_INT();
-	  MRF49XA_CLEAR_FIFOP_INT();
-	  MRF49XA_ENABLE_FIFOP_INT();
-
+	MRF49XA_DISABLE_FIFOP_INT();
+	MRF49XA_EDGE_FALL_INT();
+	MRF49XA_CLEAR_FIFOP_INT();
+	MRF49XA_ENABLE_FIFOP_INT();
 
 	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 	P2SEL |= BIT7;                            // P2.7 option select
@@ -654,14 +643,14 @@ static int on(void) {
 	UCA0IE &= ~UCRXIFG;
 	UCA0IE &= ~UCTXIFG;
 	UCA0CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
+
 	clock_wait(30);
 	// antenna tuning on startup
-	setReg(MRF49XA_PMCREG,     0x21); //RegisterSet(PMCREG | 0x0020);           // turn on the transmitter
-	clock_wait(3);                          // wait 10ms for oscillator to stablize
-	// end of antenna tuning
-	setReg(MRF49XA_PMCREG,     0xd9); //RegisterSet(PMCREG | 0x0080);           // turn off transmitter, turn on receiver
+	setReg(MRF49XA_PMCREG,     0x21);	// turn on the transmitter
+	clock_wait(3);						// wait 10ms for oscillator to stablize
+	setReg(MRF49XA_PMCREG,     0xd9);	// turn off transmitter, turn on receiver
 
-  return 0;
+	return 0;
 }
 /*---------------------------------------------------------------------------*/
 static int off(void) {

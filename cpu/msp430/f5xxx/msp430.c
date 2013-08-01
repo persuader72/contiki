@@ -70,6 +70,7 @@ void msp430f53xx_init_dco(void)
 	  // Increase Vcore setting to level1 to support fsystem=12MHz
 	  // NOTE: Change core voltage one level at a time..
 	  SetVcoreUp (0x01);
+	  //SetVCore(3);
 
 	  // Initialize DCO to 12MHz
 	  //__bis_SR_register(SCG0);                  // Disable the FLL control loop
@@ -86,7 +87,7 @@ void msp430f53xx_init_dco(void)
 												// (N + 1) * FLLRef = Fdco
 												// (224 + 1) * 32768 = 7.3728MHz
 												// Set FLL Div = fDCOCLK/2
-	  //__bic_SR_register(SCG0);                  // Enable the FLL control loop
+	  //__bic_SR_register(SCG0);                // Enable the FLL control loop
 	  #ifdef __IAR_SYSTEMS_ICC__
 	    __bic_SR_register(SCG0);
 	  #else
@@ -114,7 +115,6 @@ void msp430f53xx_init_dco(void)
 
 	  P4SEL |= BIT7;
 	  P4DIR |= BIT7;   // MCLK set out to pins
-
 
 }
 
@@ -207,9 +207,9 @@ init_ports(void)
   P1IE = 0;
   P2IE = 0;
 
-  LDOKEYPID = LDOKEY;
+  /*LDOKEYPID = LDOKEY;
   LDOPWRCTL = 0;
-  LDOKEYPID = 0 ;
+  LDOKEYPID = 0 ;*/
 
 }
 /*---------------------------------------------------------------------------*/

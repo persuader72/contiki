@@ -24,7 +24,6 @@
  * SUCH DAMAGE.
  *
  */
-
 #ifndef _ISR_COMPAT_H_
 #define _ISR_COMPAT_H_
 

@@ -46,6 +46,13 @@
 #include "dev/at25f512b.h"
 #include "stdio.h"
 
+#define DEBUG 0
+#if DEBUG
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...) do {} while (0)
+#endif
+
 /*---------------------------------------------------------------------------*/
 /**
  * \brief      	     read data from flash memory

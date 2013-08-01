@@ -1,45 +1,7 @@
-/*
- * Copyright (c) 2010, Swedish Institute of Computer Science.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the Institute nor the names of its contributors
- *    may be used to endorse or promote products derived from this software
- *    without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE INSTITUTE AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE INSTITUTE OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
-
-/**
- * \file
- *         Platform configuration for the wismote platform.
- */
-
 #ifndef __PLATFORM_CONF_H__
 #define __PLATFORM_CONF_H__
 
 #define TMOTE_MYMOTE 1
-/*
- * Definitions below are dictated by the hardware and not really
- * changeable!
- */
 
 #define PROCESS_CONF_NO_PROCESS_NAMES 1
 
@@ -90,19 +52,22 @@ typedef unsigned long off_t;
 #define XMEM_ERASE_UNIT_SIZE (64*1024L)
 
 
-#define CFS_CONF_OFFSET_TYPE    long
+//#define CFS_CONF_OFFSET_TYPE    long
 
 
 /* Use the first 64k of external flash for node configuration */
-#define NODE_ID_XMEM_OFFSET     (0 * XMEM_ERASE_UNIT_SIZE)
+//#define NODE_ID_XMEM_OFFSET     (0 * XMEM_ERASE_UNIT_SIZE)
 
 /* Use the second 64k of external flash for codeprop. */
-#define EEPROMFS_ADDR_CODEPROP  (1 * XMEM_ERASE_UNIT_SIZE)
+//#define EEPROMFS_ADDR_CODEPROP  (1 * XMEM_ERASE_UNIT_SIZE)
 
-#define CFS_XMEM_CONF_OFFSET    (2 * XMEM_ERASE_UNIT_SIZE)
-#define CFS_XMEM_CONF_SIZE      (1 * XMEM_ERASE_UNIT_SIZE)
 
-#define CFS_RAM_CONF_SIZE 4096
+#define MMEM_CONF_SIZE 256
+
+//#define CFS_XMEM_CONF_OFFSET    (2 * XMEM_ERASE_UNIT_SIZE)
+//#define CFS_XMEM_CONF_SIZE      (1 * XMEM_ERASE_UNIT_SIZE)
+
+//#define CFS_RAM_CONF_SIZE 4096
 
 
 
@@ -195,5 +160,12 @@ typedef unsigned long off_t;
 #define PIN1SEL   P1SEL
 #define PIN1DIR   P1DIR
 #define PIN1BIT   BIT2*/
+
+/* LED ports */
+#define LEDS_PxDIR P1DIR // port direction register
+#define LEDS_PxOUT P1OUT // port register
+#define LEDS_CONF_GREEN  BIT5 //red led
+#define LEDS_CONF_RED    BIT7 // green led
+#define LEDS_CONF_YELLOW BIT6 // yellow led
 
 #endif /* __PLATFORM_CONF_H__ */
