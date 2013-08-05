@@ -207,10 +207,11 @@ init_ports(void)
   P1IE = 0;
   P2IE = 0;
 
+#ifdef __MSP430F5308
   LDOKEYPID = LDOKEY;
   LDOPWRCTL = 0;
   LDOKEYPID = 0 ;
-
+#endif
 }
 /*---------------------------------------------------------------------------*/
 /* msp430-ld may align _end incorrectly. Workaround in cpu_init. */

@@ -107,7 +107,9 @@ spi_init(void)
 
 	  //WDTCTL = WDTPW|WDTHOLD;                   // Stop watchdog timer
 
-	  //P1DIR |= 0x03;                            // Set P1.0-1 to output direction
+	  //P3DIR |= BIT0;                            // Set P3.0 output (RESET_RF)
+	  //P3OUT |= BIT0;                            // Set P3.0 high   (RESET_RF)
+
 	  P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
 	  P2SEL |= BIT7;                            // P2.7 option select
 

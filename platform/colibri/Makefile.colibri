@@ -23,7 +23,8 @@ endif
 SMALL=1
 CONTIKI_TARGET_SOURCEFILES += $(ARCH) 
 
-MCU=msp430f5308
+MCU=msp430f5310
+#MCU=msp430f5510
 include $(CONTIKI)/cpu/msp430/Makefile.msp430
 
 contiki-$(TARGET).a: ${addprefix $(OBJECTDIR)/,symbols.o}

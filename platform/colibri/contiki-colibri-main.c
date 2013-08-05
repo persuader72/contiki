@@ -153,9 +153,13 @@ void deepSleepEnter(void){
 	  UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; // Set ACLK = VLO
 
 	  // Port Configuration
-	  P1OUT = 0x00;P2OUT = BIT5;P3OUT = BIT2|BIT1; P4OUT = 0x00;P5OUT = 0x00;P6OUT = 0x00;
+	  P1SEL = 0x00;
+	  P1OUT = 0x00;P2OUT = BIT5;P3OUT = BIT2|BIT1|BIT0; P4OUT = 0x00;P5OUT = 0x00;P6OUT = 0x00;
 	  PJOUT = 0x00;
-	  P1DIR = 0xFF;P2DIR = ~ (BIT6|BIT2|BIT4);P3DIR = 0xFF;P4DIR = 0xFF;P5DIR = 0xFF; P6DIR = ~ BIT7;
+	  P1DIR = 0xF7;
+	  P1REN = 0x00;
+
+	  P2DIR = ~ (BIT6|BIT2|BIT4);P3DIR = 0xFF;P4DIR = 0xFF;P5DIR = 0xFF; P6DIR = ~ BIT7;
 	  PJDIR = 0xFF;
 
 	  //watchdog_stop();
