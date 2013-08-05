@@ -57,7 +57,7 @@ Berlin, 2006
 
 // Start at 0x0000
 typedef struct infomem_addresses_t {
-	uint16_t nodeId[2];
+	uint32_t nodeId;
 	uint8_t macAddr[8];
 	uint8_t rimeAddr[4];
 }infomem_addresses; // Total size 0x0010

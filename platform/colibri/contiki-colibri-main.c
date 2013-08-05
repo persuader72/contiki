@@ -134,7 +134,7 @@ int main(void) {
 #endif
     clock_init();
     rtimer_init();
-    random_init(INFOMEM_STRUCT_A->addresses.nodeId[1]);
+    random_init(INFOMEM_STRUCT_A->addresses.nodeId);
     process_init();
     process_start(&etimer_process, NULL);
     ctimer_init();
