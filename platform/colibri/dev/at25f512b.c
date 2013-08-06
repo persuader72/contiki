@@ -77,7 +77,7 @@ void at52f512_read(uint32_t address, uint8_t *buff, uint8_t len){
 	AT25F512_SPI_BYTE_WRITE((uint8_t)(address    )&0xff);
 
 	uint8_t i;
-	for(i=0;i<len+1;i++){
+	for(i=0;i<len;i++){
 		AT25F512_SPI_BYTE_READ(&buff[i]);
 	}
 	AT25F512_SPI_STOP(0);
@@ -96,8 +96,8 @@ void at52f512_write(uint32_t address, uint8_t *buff, uint8_t len){
 	AT25F512_SPI_BYTE_WRITE((address    )&0xff);
 
 	uint8_t i;
-	for(i=0;i<len+1;i++){
-		if(i!=len)
+	for(i=0;i<len;i++){
+		if(i!=len-1)
 			AT25F512_SPI_BYTE_WRITE(buff[i]);
 		else
 			AT25F512_SPI_STOP(buff[i]);
