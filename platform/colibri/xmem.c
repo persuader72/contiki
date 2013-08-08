@@ -14,13 +14,13 @@ int xmem_pread(void *_p, int size, unsigned long offset) {
 	}
 	printf("\n");*/
 	//printf("size rd:0x%.2x\n",size);
-	for(i=0;i<128;i+=16){
+	/*for(i=0;i<128;i+=16){
 		at25f512_rdOTP(i, (uint8_t *)_p, 16);
 		printf("add 0x%.2x:  ",i);
 		for(t=0;t<16;t++)
 			printf("%.2x ",((uint8_t *)(_p))[t]);
 		printf("\n");
-	}
+	}*/
 
 	at52f512_read(offset,(uint8_t *)_p,size);
 	return size;

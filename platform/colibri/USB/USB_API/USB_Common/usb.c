@@ -171,7 +171,7 @@ BYTE activeInterfaceIndex = 0;
 
 //#pragma location = IEP2_Y_BUFFER_ADDRESS
  BYTE  pbYBufferAddressEp82[EP_MAX_PACKET_SIZE] __asm__("0x1DC0");
-
+/*
 //#pragma location = OEP3_X_BUFFER_ADDRESS
  BYTE  pbXBufferAddressEp3[EP_MAX_PACKET_SIZE];
 
@@ -231,7 +231,7 @@ BYTE activeInterfaceIndex = 0;
 
 //#pragma location = IEP7_Y_BUFFER_ADDRESS
  BYTE  pbYBufferAddressEp87[EP_MAX_PACKET_SIZE];
-
+*/
 
 
 //#endif

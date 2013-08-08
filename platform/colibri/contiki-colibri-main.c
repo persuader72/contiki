@@ -12,6 +12,7 @@
 #include "dev/mrf49xa.h"
 #include "dev/infomem.h"
 #include "dev/adc.h"
+#include "node-id-colibri.h"
 
 #include <string.h>
 
@@ -142,6 +143,8 @@ int main(void) {
     adc_init();
     set_rime_addr();
     radio_setup();
+
+    node_id_restore();
 
 #ifdef SERIAL_LINE_INPUT_ENABLED
 #ifdef SERIAL_LINE_USB
