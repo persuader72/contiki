@@ -25,8 +25,8 @@ int putchar(int c) {
     //if(usb_printf_state == USB_LOCKED) return -1;
     //usb_printf_state = USB_LOCKED;
 	outBuff[outBuffPos++] = c;
-	if(c=='\n'||outBuffPos==64) {
-		cdcSendDataWaitTilDone(outBuff,outBuffPos, CDC0_INTFNUM, 1);
+	if(c=='\n'||outBuffPos==BUFSIZE) {
+		cdcSendDataWaitTilDone(outBuff,outBuffPos, CDC0_INTFNUM, 5000);
 		outBuffPos=0;
 	}
 	//usb_printf_state = USB_ENABLED;
