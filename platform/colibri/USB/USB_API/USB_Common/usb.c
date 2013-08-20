@@ -171,67 +171,68 @@ BYTE activeInterfaceIndex = 0;
 
 //#pragma location = IEP2_Y_BUFFER_ADDRESS
  BYTE  pbYBufferAddressEp82[EP_MAX_PACKET_SIZE] __asm__("0x1DC0");
-/*
+
+ // added by ac
 //#pragma location = OEP3_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp3[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp3[EP_MAX_PACKET_SIZE] __asm__("0x1E00");
 
 //#pragma location = OEP3_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp3[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp3[EP_MAX_PACKET_SIZE] __asm__("0x1E40");
 
 //#pragma location = IEP3_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp83[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp83[EP_MAX_PACKET_SIZE] __asm__("0x1E80");
 
 //#pragma location = IEP3_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp83[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp83[EP_MAX_PACKET_SIZE] __asm__("0x1EC0");
 
 //#pragma location = OEP4_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp4[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp4[EP_MAX_PACKET_SIZE] __asm__("0x1F00");
 
 //#pragma location = OEP4_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp4[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp4[EP_MAX_PACKET_SIZE] __asm__("0x1F40");
 
 //#pragma location = IEP4_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp84[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp84[EP_MAX_PACKET_SIZE] __asm__("0x1F80");
 
 //#pragma location = IEP4_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp84[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp84[EP_MAX_PACKET_SIZE] __asm__("0x1FC0");
 
 //#pragma location = OEP5_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp5[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp5[EP_MAX_PACKET_SIZE] __asm__("0x2000");
 
 //#pragma location = OEP5_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp5[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp5[EP_MAX_PACKET_SIZE] __asm__("0x2040");
 
 //#pragma location = IEP5_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp85[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp85[EP_MAX_PACKET_SIZE] __asm__("0x2080");
 
 //#pragma location = IEP5_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp85[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp85[EP_MAX_PACKET_SIZE] __asm__("0x20C0");
 
 //#pragma location = OEP6_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp6[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp6[EP_MAX_PACKET_SIZE] __asm__("0x2100");
 
 //#pragma location = OEP6_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp6[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp6[EP_MAX_PACKET_SIZE]__asm__("0x2140");
 
 //#pragma location = IEP6_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp86[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp86[EP_MAX_PACKET_SIZE]__asm__("0x2180");
 
 //#pragma location = IEP6_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp86[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp86[EP_MAX_PACKET_SIZE]__asm__("0x21C0");
 
 //#pragma location = OEP7_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp7[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp7[EP_MAX_PACKET_SIZE] __asm__("0x2200");
 
 //#pragma location = OEP7_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp7[EP_MAX_PACKET_SIZE];
+ BYTE  pbYBufferAddressEp7[EP_MAX_PACKET_SIZE] __asm__("0x2240");
 
 //#pragma location = IEP7_X_BUFFER_ADDRESS
- BYTE  pbXBufferAddressEp87[EP_MAX_PACKET_SIZE];
+ BYTE  pbXBufferAddressEp87[EP_MAX_PACKET_SIZE] __asm__("0x2280");
 
 //#pragma location = IEP7_Y_BUFFER_ADDRESS
- BYTE  pbYBufferAddressEp87[EP_MAX_PACKET_SIZE];
-*/
+ BYTE  pbYBufferAddressEp87[EP_MAX_PACKET_SIZE] __asm__("0x22C0");
+
 
 
 //#endif
