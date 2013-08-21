@@ -163,42 +163,25 @@ int main(void) {
           watchdog_periodic();
           r = process_run();
         } while(r > 0);
-
+#ifdef SERIAL_LINE_USB
         if(process_nevents() != 0 /*|| uart1_active()*/) {
-
         } else {
             watchdog_stop();
-            //__bis_SR_register(GIE | LPM3_bits);
             watchdog_start();
         }
-
+#else
+        int s = splhigh();		/* Disable interrupts. */
+        if(process_nevents() != 0 || uart1_active()) {
+        	splx(s);			/* Re-enable interrupts. */
+        } else {
+            watchdog_stop();
+            __bis_SR_register(GIE | LPM3_bits);
+            watchdog_start();
+        }
+#endif
         /*if(events_available()) {
             process_events();
         }*/
     }
 }
 
-/** Checks if there are events available to be processed
- * The currently supported events are:
- * - There are USB packets available
- *
- *   These events are checked quite frequently because the main
- *   loop is constantly checking them. Anyhow, whenever we need to process
- *   a lengthy task, the main loop will cease to check for an event. 
- *   This doesn't mean that the events will be dropped, but they will 
- *   not be managed instantly.
- */
-/*uint8_t events_available(void) {
-    return (
-        //data received event
-        bCDCDataReceived_event
-        );
-}*/
-
-/** Process then events queried in the \ref events_available() function */
-/*void process_events(void) {
-    // Data received from USB
-    if(bCDCDataReceived_event == TRUE) {
-        usb_receive_string();
-    }   
-}*/
