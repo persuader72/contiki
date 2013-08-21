@@ -66,6 +66,7 @@
  *             will be read len+2 bytes. Len+1 bytes will be copied
  *             in to buffer
  */
+
 void at52f512_read(uint32_t address, uint8_t *buff, uint8_t len){
 
 	uint8_t busy;
