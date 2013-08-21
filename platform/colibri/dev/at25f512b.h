@@ -61,14 +61,24 @@ typedef enum _at25f512b_dpMode{
     SPI_WRITE(data); \
   } while(0)
 
-
 /* Read a rbyte from spi*/
+#define ECHO_SDI 0
+#if ECHO_SDI
+/* Read a rbyte from spi*/
+#define AT25F512_SPI_BYTE_READ(data) \
+  do { \
+	SPI_WAITFORTx_BEFORE(); \
+    SPI_WRITE(*data); \
+    *data = (SPI_RXBUF); \
+  } while(0)
+#else
 #define AT25F512_SPI_BYTE_READ(data) \
   do { \
 	SPI_WAITFORTx_BEFORE(); \
     SPI_WRITE(0); \
     *data = (SPI_RXBUF); \
   } while(0)
+#endif
 
 
 
