@@ -62,13 +62,13 @@ static const unsigned char l2p[LEDS_ALL + 1] = {
 void
 leds_on(unsigned char leds)
 {
-  LEDS_PxOUT &= ~l2p[leds & LEDS_ALL];
+  LEDS_PxOUT |= l2p[leds & LEDS_ALL];
 }
 
 void
 leds_off(unsigned char leds)
 {
-  LEDS_PxOUT |= l2p[leds & LEDS_ALL];
+  LEDS_PxOUT &= ~l2p[leds & LEDS_ALL];
 }
 
 void
