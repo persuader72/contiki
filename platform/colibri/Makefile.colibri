@@ -3,7 +3,7 @@ ifndef CONTIKI
 endif
 
 CONTIKI_TARGET_SOURCEFILES += xmem.c infomem.c adc.c mrf49xa.c mrf49xa_arch.c at25f512b.c
-CONTIKI_TARGET_SOURCEFILES += node-id-colibri.c
+CONTIKI_TARGET_SOURCEFILES += node-id-colibri.c colibri-lpm.c
 
 ifdef COLIBRI_USE_USB
 #CUSTOM_TARGET_SOURCEFILES += wdt.c console.c utils.c usb_printf.c

@@ -12,6 +12,7 @@
 #include "dev/mrf49xa.h"
 #include "dev/infomem.h"
 #include "dev/adc.h"
+#include "colibri-lpm.h"
 #include "node-id-colibri.h"
 
 #include <string.h>
@@ -122,6 +123,62 @@ void msp_init(void) {
 }
 #endif
 
+static void lpm_uart_enter(void) {
+	/* RS232 */
+	UCA1CTL1 |= UCSWRST;            /* Hold peripheral in reset state */
+	P4SEL &= ~(BIT4|BIT5);			// P4.5 4.6 = USCI_A1 TXD/RXD
+	/* Clear pending interrupts*/
+	UCA1IE &= ~UCRXIFG;
+	UCA1IE &= ~UCTXIFG;
+}
+
+static void lpm_msp430_enter(void) {
+	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
+
+	P1OUT = 0x00;
+	P2OUT = BIT5;
+	P3OUT = BIT2|BIT1|BIT0;
+	P4OUT = 0x00;
+	P5OUT = 0x00;
+	P6OUT = 0x00;
+	PJOUT = 0x00;
+	P1DIR = 0xFF;
+
+	P2DIR = ~ (BIT6|BIT2|BIT4);
+	P3DIR = 0xFF;
+	P4DIR = 0xFF;
+	P5DIR = 0xFF;
+	P6DIR = ~ BIT7;
+
+	PJDIR = 0xFF;
+}
+
+static void lpm_uart_exit() {
+	P4SEL |= BIT4|BIT5;  	// P4.5 4.6 = USCI_A1 TXD/RXD
+
+	UCA1IE &= ~UCRXIFG;  	/* Clear pending interrupts before enable */
+	UCA1IE &= ~UCTXIFG;
+
+	UCA1CTL1 &= ~UCSWRST;	/* Initialize USCI state machine **before** enabling interrupts */
+	UCA1IE |= UCRXIE;		/* Enable UCA1 RX interrupt */
+}
+
+static void lpm_msp430_exit(void) {
+	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
+}
+
+static void lpm_enter(void) {
+	CLEAR_LPM_REQUEST(LPM_IS_ENABLED);
+	lpm_uart_enter();
+	lpm_msp430_enter();
+}
+
+static void lpm_exit(void) {
+	CLEAR_LPM_REQUEST(LPM_IS_DISABLED);
+	lpm_msp430_exit();
+	lpm_uart_exit();
+}
+
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
@@ -174,9 +231,11 @@ int main(void) {
         if(process_nevents() != 0 || uart1_active()) {
         	splx(s);			/* Re-enable interrupts. */
         } else {
+        	if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
             watchdog_stop();
             __bis_SR_register(GIE | LPM3_bits);
             watchdog_start();
+            if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
         }
 #endif
         /*if(events_available()) {
