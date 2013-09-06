@@ -92,8 +92,8 @@
 
 #define WITH_ASCII 1
 
-#define PROCESS_CONF_NUMEVENTS 8
-#define PROCESS_CONF_STATS 1
+#define PROCESS_CONF_NUMEVENTS 32
+#define PROCESS_CONF_STATS 0
 /*#define PROCESS_CONF_FASTPOLL    4*/
 
 /* include the project config */
