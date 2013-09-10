@@ -2,7 +2,7 @@ ifndef CONTIKI
   $(error CONTIKI not defined! You must specify where CONTIKI resides!)
 endif
 
-CONTIKI_TARGET_SOURCEFILES += xmem.c infomem.c adc.c mrf49xa.c mrf49xa_arch.c at25f512b.c
+CONTIKI_TARGET_SOURCEFILES += xmem.c infomem.c adc.c pwm.c mrf49xa.c mrf49xa_arch.c at25f512b.c
 CONTIKI_TARGET_SOURCEFILES += node-id-colibri.c colibri-lpm.c
 
 ifdef COLIBRI_USE_USB
