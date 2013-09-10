@@ -51,6 +51,15 @@ Todi, 2013
 #define PWM_H
 
 #define PWM_CHANNELS 2
+#define PWM_CH0 1
+#define PWM_CH1 2
+
+#define PWM_CH0_PORT(type) P1##type
+#define PWM_CH0_BIT        BIT2
+
+#define PWM_CH1_PORT(type) P1##type
+#define PWM_CH1_BIT        BIT3
+
 
 void pwm_init(void);
 void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty[]);

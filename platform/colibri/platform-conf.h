@@ -169,8 +169,8 @@ typedef unsigned long off_t;
 /* LED ports */
 #define LEDS_PxDIR P1DIR // port direction register
 #define LEDS_PxOUT P1OUT // port register
-#define LEDS_CONF_GREEN  BIT5 //red led
-#define LEDS_CONF_RED    BIT7 // green led
+#define LEDS_CONF_GREEN  BIT7 //red led
+#define LEDS_CONF_RED    BIT5 // green led
 #define LEDS_CONF_YELLOW BIT6 // yellow led
 
 #endif /* __PLATFORM_CONF_H__ */

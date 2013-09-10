@@ -85,7 +85,6 @@ void at52f512_read(uint32_t address, uint8_t *buff, uint8_t len){
 }
 
 void at52f512_write(uint32_t address, uint8_t *buff, uint8_t len){
-
 	uint8_t busy;
 	AT25F512_WT_BUSY(busy);
 
@@ -121,7 +120,6 @@ void at25f512_erase(at25f512b_instr blockSize, uint32_t address){
 		AT25F512_SPI_BYTE_WRITE((address>>8 )&0xff);
 		AT25F512_SPI_STOP((address    )&0xff);
 	}
-
 }
 
 
