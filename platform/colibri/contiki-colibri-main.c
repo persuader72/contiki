@@ -192,7 +192,6 @@ int main(void) {
 #endif
     clock_init();
     rtimer_init();
-    random_init(INFOMEM_STRUCT_A->addresses.nodeId);
     process_init();
     process_start(&etimer_process, NULL);
     ctimer_init();
@@ -202,6 +201,7 @@ int main(void) {
     radio_setup();
 
     node_id_restore();
+    random_init((uint16_t)node_id_colibri);
 
 #ifdef SERIAL_LINE_INPUT_ENABLED
 #ifdef SERIAL_LINE_USB
