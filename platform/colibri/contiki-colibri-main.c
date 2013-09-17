@@ -50,7 +50,7 @@ void radio_setup(void){
 	//mrf49xa_setRxRssi(MRF49XA_RSSI_79DB,MRF49XA_LNA_0DB);
 
 	//mrf49xa_init(baud,txpwr,band,channel);
-	mrf49xa_init(MRF49XA_57600,MRF49XA_TXPWR_7DB,MRF49XA_BAND_868,MRF49XA_DEF_CHANNEL);
+	mrf49xa_init(MRF49XA_57600,MRF49XA_TXPWR_0DB,MRF49XA_BAND_868,MRF49XA_DEF_CHANNEL);
 
 }
 
@@ -190,6 +190,7 @@ int main(void) {
     uart1_init(115200);
 #endif
 #endif
+
     clock_init();
     rtimer_init();
     process_init();
@@ -201,7 +202,7 @@ int main(void) {
     radio_setup();
 
     node_id_restore();
-    random_init((uint16_t)node_id_colibri);
+    random_init((unsigned short)node_id_colibri);
 
 #ifdef SERIAL_LINE_INPUT_ENABLED
 #ifdef SERIAL_LINE_USB
