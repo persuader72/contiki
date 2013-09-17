@@ -63,5 +63,6 @@ Todi, 2013
 
 void pwm_init(void);
 void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty[]);
+void pwm_setPort(uint8_t port);
 
 #endif // !PWM_H

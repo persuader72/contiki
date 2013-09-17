@@ -16,19 +16,21 @@ void pwm_setPort(uint8_t port){
 				PWM_CH0_PORT(DIR) |= PWM_CH0_BIT;
 				PWM_CH0_PORT(SEL) |= PWM_CH0_BIT;
 
-				//P1.1 + P6.0 as input
+				//P1.1 + + P4.4 + P6.0 as input
 				P1DIR &= ~BIT1; P1SEL &= ~BIT1;
 				P6DIR &= ~BIT0; P6SEL &= ~BIT0;
+				P4DIR &= ~BIT4; P4SEL &= ~BIT4;
 
 			}
 			else{
 				PWM_CH0_PORT(DIR) &= ~PWM_CH0_BIT;
 				PWM_CH0_PORT(SEL) &= ~PWM_CH0_BIT;
+				P4DIR |= BIT4; P4SEL |= BIT4;
 			}
 
 			break;
 		case 1:
-			if (port & PWM_CH0 ){
+			if (port & PWM_CH1 ){
 				PWM_CH1_PORT(DIR) |= PWM_CH1_BIT;
 				PWM_CH1_PORT(SEL) |= PWM_CH1_BIT;
 			}

@@ -43,6 +43,13 @@ static uint16_t rssiSample;
 static uint16_t rxcreg;
 static uint16_t txcreg;
 static uint16_t gencreg;
+static clock_time_t timeout;
+
+//clock time is in 7ms tick.
+//bytes are trasmitted at 56kbps (142us@byte).
+//1 tick equal to 49 byte.
+#define TIMEOUT_TICKS 6
+
 
 /*---------------------------------------------------------------------------*/
 PROCESS(mrf49xa_process, "Mrf49xa driver");
@@ -287,38 +294,75 @@ uint8_t mrf49xa_get_byte(void)
   return (uint8_t) (data & 0xff);
 }
 
+//! @brief
+//! mrf49xa_interrupt manage incoming data form radio transceiver.
+//! Radio packet is composed by 1 length byte followed by N data bytes with 2 CRC bytes at the
+//! end (PAYLOAD + CRC = N). mrf49xa_pending hold pending data. if mrf49xa_pending is zero
+//! incoming byte is stored as mrf49xa_pending.
+//! When interrupt occurs a byte is read from the radio transceiver. If mrf49xa_pending is
+//! not zero incoming byte will be stored in buffer.
+//! After N bytes are received a poll request is posted to radio thread that verify
+//! if CRC is correct. If CRC is incorrect packet is discarded otherwise a message is sent to
+//! network stack that will manage incoming packet.
+//! To be noted that if a radio error occurs during length transmission sync with
+//! subsequent packet will be lost. To avoid this a timeout has been implemented.
+//! If after timeout not all expected byte will be received packet has to be discharged and
+//! communication status will be reset.
+//! In other words if during broadcast transmissions a packet separation of TIMEOUT_TICKS * 7ms
+//! is guaranteed no packet synchronization lost should occur; if packet with acknowledge is
+//! transmitted a minimum timeout of TIMEOUT_TICKS * 7ms must be considered
+
+
 int
 mrf49xa_interrupt(void)
 {
   uint16_t reg;
   uint8_t adcStatus;
+  clock_time_t currTime;
+
+  currTime = clock_time();
 
   if(!mrf49xa_pending) {
 	 if (getDioStatus()){
+		 //if there is no pending data first trasmitted byte is packet lenght.
 		 mrf49xa_recvlen=mrf49xa_pending=mrf49xa_get_byte();
-		 if (mrf49xa_pending > PACKETBUF_SIZE + PACKETBUF_HDR_SIZE){
+
+		 if (mrf49xa_pending > PACKETBUF_SIZE + PACKETBUF_HDR_SIZE){ //more data expected than buffer size.
 			 PRINTF("%d\n",mrf49xa_pending);
 			 mrf49xa_recvlen=mrf49xa_pending = 0;
 	    	 setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
 	    	 setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
 	    	 readSR(&reg);
 		 }
-		 else{
+		 else{//DIO status low indicates that there are valid data on radio fifo
 			 mrf49xaptr=mrf49xabuf;
 			 mrf49xa_start_time=RTIMER_NOW();
 			 //reset delle medie dei campioni dell'RSSI
 			 rssi = 0;
 			 rssiSample = 0;
+			 timeout = clock_time()+TIMEOUT_TICKS; //set packet timeout
+			 leds_off(LEDS_RED);
 		 }
+
 	 }
-	 else{
+	 else{ //should never occour. To be verified.
 		 mrf49xa_recvlen=mrf49xa_pending = 0;
     	 setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
     	 setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
     	 readSR(&reg);                     //RegisterSet(0x0000);				    // read status byte (read ITs)
 	 }
 
-  } else {
+  }
+  else if(currTime > timeout){
+	  //if byte has arrived after timeout reset all status and exit
+	 PRINTF("timeout occurred %d bytes pending\n",mrf49xa_pending);
+     mrf49xa_recvlen=mrf49xa_pending = 0;
+ 	 setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
+ 	 setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
+ 	 readSR(&reg);
+ 	 leds_on(LEDS_RED);
+  }
+  else {
      *mrf49xaptr++ = mrf49xa_get_byte();
      //rssiSample++;
      adcStatus = getAdcStatus();
