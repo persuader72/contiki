@@ -142,8 +142,8 @@ static void lpm_msp430_enter(void) {
 	P5OUT = 0x00;
 	P6OUT = 0x00;
 	PJOUT = 0x00;
-	P1DIR = 0xFF;
 
+	P1DIR = 0xFF;
 	P2DIR = ~ (BIT6|BIT2|BIT4);
 	P3DIR = 0xFF;
 	P4DIR = 0xFF;

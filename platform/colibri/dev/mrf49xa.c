@@ -694,6 +694,10 @@ static int on(void) {
 	clock_wait(3);						// wait 10ms for oscillator to stablize
 	setReg(MRF49XA_PMCREG,     0xd9);	// turn off transmitter, turn on receiver
 
+	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
+	SPI_WRITE(0xAB);
+	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
+
 	return 0;
 }
 /*---------------------------------------------------------------------------*/
