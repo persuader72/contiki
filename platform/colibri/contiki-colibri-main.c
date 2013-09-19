@@ -179,6 +179,46 @@ static void lpm_exit(void) {
 	lpm_uart_exit();
 }
 
+uint16_t getRandomIntegerFromVLO(void)
+{
+  uint8_t i;
+  uint16_t result = 0;
+  UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; // Set ACLK = VLO
+
+  // setup Timer_A
+  // on msp430f53xx ACLK is connected to CCI2B
+  TA0CCTL2 = CM_1 + CCIS_1 + CAP;
+  TA0CTL |= TASSEL__SMCLK + MC__CONTINOUS;
+  leds_on(LEDS_RED);
+  for(i=0 ; i<16 ; i++)
+  {
+    // shift left result
+    result <<= 1;
+    // wait until Capture flag is set
+    while(!(TA0CCTL2 & CCIFG));
+
+    // clear flag
+    TA0CCTL2 &= ~CCIFG;
+
+    // check LSB
+    if(TA0CCR2 & 0x01)
+    {
+      result |= 0x01;
+    }
+
+    // change the divison of timer input clock
+    //TA0CTL = (TA0CTL & 0xFCFF) | ((TA0CCR2 & 0x03) << 8);
+  }
+
+  UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
+  //disable timer A
+  TA0CCTL2 = 0;
+  TA0CTL   = 0;
+  leds_off(LEDS_RED);
+
+  return result;
+}
+
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
@@ -202,7 +242,10 @@ int main(void) {
     radio_setup();
 
     node_id_restore();
-    random_init((unsigned short)node_id_colibri);
+    //random_init((unsigned short)node_id_colibri);
+    uint16_t seed = getRandomIntegerFromVLO();
+    random_init((unsigned short)seed);
+
 
 #ifdef SERIAL_LINE_INPUT_ENABLED
 #ifdef SERIAL_LINE_USB
@@ -212,6 +255,12 @@ int main(void) {
     serial_line_init();
 #endif
 #endif
+    /*uint8_t i;
+    for(i=0;i<16;i++){
+        print_hex_buff(&seed,2);
+        putchar('\n');
+        seed = getRandomIntegerFromVLO();
+    }*/
 
     autostart_start(autostart_processes);
     // Main loop
