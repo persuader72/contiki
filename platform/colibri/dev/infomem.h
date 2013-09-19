@@ -57,10 +57,10 @@ Berlin, 2006
 
 // Start at 0x0000
 typedef struct infomem_addresses_t {
-	uint32_t nodeId;
-	uint8_t macAddr[8];
-	uint8_t rimeAddr[4];
-}infomem_addresses; // Total size 0x0010
+	uint32_t nodeId;					// @0x00
+	uint8_t macAddr[8];					// @0x04
+	uint8_t rimeAddr[4];				// @0x0C
+}infomem_addresses; 					// Size: 0x10
 
 /**
  * baudarte:
@@ -93,13 +93,13 @@ typedef struct infomem_addresses_t {
 
 // Start at 0x0010
 typedef struct infomem_radio_t {
-	uint8_t baudRate;
-	uint8_t txPower;
-	uint8_t minRssi;
-	uint8_t channel;
-	uint8_t band;
-	uint8_t padding;
-}infomem_radio; // Total size 0x0006
+	uint8_t baudRate;					// @0x10
+	uint8_t txPower;					// @0x11
+	uint8_t minRssi;					// @0x12
+	uint8_t channel;					// @0x13
+	uint8_t band;						// @0x14
+	uint8_t padding;					// @0x15
+}infomem_radio;							// Size: 0x06
 
 typedef enum pinMode_t{
 	pwmOut     = 0,

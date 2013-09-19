@@ -38,19 +38,19 @@
 //volatile BYTE bCDCDataReceived_event = FALSE;
 
 void radio_setup(void){
-	/*uint8_t baud = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
-	//uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
-	uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_7DB : INFOMEM_STRUCT_A->radio.txPower;
+	uint8_t baud = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
+	uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
+	//uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_7DB : INFOMEM_STRUCT_A->radio.txPower;
 	//uint8_t rssi = INFOMEM_STRUCT_A->radio.minRssi == 0xFF ? MRF49XA_RSSI_79DB : INFOMEM_STRUCT_A->radio.minRssi;
 	uint8_t band = INFOMEM_STRUCT_A->radio.band == 0xFF ? MRF49XA_BAND_868 : INFOMEM_STRUCT_A->radio.band;
-	uint8_t channel = INFOMEM_STRUCT_A->radio.channel > MRF49XA_MAX_CHANNEL ? MRF49XA_DEF_CHANNEL : INFOMEM_STRUCT_A->radio.channel;*/
+	uint8_t channel = INFOMEM_STRUCT_A->radio.channel > MRF49XA_MAX_CHANNEL ? MRF49XA_DEF_CHANNEL : INFOMEM_STRUCT_A->radio.channel;
 
 	//mrf49xa_setDataRate(baud,band);
 	//mrf49xa_setTxPwr(txpwr);
 	//mrf49xa_setRxRssi(MRF49XA_RSSI_79DB,MRF49XA_LNA_0DB);
 
 	//mrf49xa_init(baud,txpwr,band,channel);
-	mrf49xa_init(MRF49XA_57600,MRF49XA_TXPWR_0DB,MRF49XA_BAND_868,MRF49XA_DEF_CHANNEL);
+	mrf49xa_init(baud,txpwr,band,channel);
 
 }
 
