@@ -22,14 +22,18 @@ int xmem_pread(void *_p, int size, unsigned long offset) {
 		printf("\n");
 	}*/
 
-	if(offset >= 0xFFFF00) at25f512_rdOTP(offset, _p, size);
+	/*at25f512_rdOTP(0, _p, 20);
+	print_hex_buff(_p,20);
+	putchar('\n');*/
+
+	if(offset >= 0xFFFF00) at25f512_rdOTP(offset & 0xFF, _p, size);
 	else at52f512_read(offset,(uint8_t *)_p,size);
 	return size;
 }
 
 int xmem_pwrite(const void *_buf, int size, unsigned long addr) {
 	//printf("size wr:0x%.2x\n",size);
-	if(addr >= 0xFFFF00) at25f512_wrOTP(addr,(uint8_t *)_buf,size);
+	if(addr >= 0xFFFF00) at25f512_wrOTP(addr & 0xFF,(uint8_t *)_buf,size);
 	else at52f512_write(addr,(uint8_t *)_buf,size);
 	//at25f512_RdID(); //wait until write end
 	return size;
