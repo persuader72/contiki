@@ -222,7 +222,16 @@ uint16_t getRandomIntegerFromVLO(void)
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
-	leds_off(LEDS_ALL);
+	leds_on(LEDS_RED);
+	leds_on(LEDS_GREEN);
+	leds_on(LEDS_YELLOW);
+
+	clock_delay(10000);
+
+	leds_off(LEDS_RED);
+	leds_off(LEDS_GREEN);
+	leds_off(LEDS_YELLOW);
+
 #ifdef SERIAL_LINE_USB
     msp_init();
 #else

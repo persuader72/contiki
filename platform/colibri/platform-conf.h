@@ -29,7 +29,7 @@
 // --------------------
 // --- XMEM MEMORY ----
 // --------------------
-#define XMEM_NODEID_BASEADDR		0x57
+#define XMEM_NODEID_BASEADDR		0x10
 
 // --------------------
 // --- INFO MEMORY ----
