@@ -210,7 +210,6 @@ init_ports(void)
   /*LDOKEYPID = LDOKEY;
   LDOPWRCTL = 0;
   LDOKEYPID = 0 ;*/
-
 }
 /*---------------------------------------------------------------------------*/
 /* msp430-ld may align _end incorrectly. Workaround in cpu_init. */

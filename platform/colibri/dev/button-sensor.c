@@ -47,12 +47,15 @@ HWCONF_IRQ(BUTTON, 1, 3);
 /*---------------------------------------------------------------------------*/
 ISR(PORT1, irq_p1)
 {
+  P1OUT |= 0xE0;
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
 
   if(BUTTON_CHECK_IRQ()) {
+    //while(1) { BUTTON_CHECK_IRQ(); }
     if(timer_expired(&debouncetimer)) {
       timer_set(&debouncetimer, CLOCK_SECOND / 4);
       sensors_changed(&button_sensor);
+      //P1OUT &= ~0x20;
       LPM4_EXIT;
     }
   }
