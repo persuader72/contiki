@@ -17,6 +17,10 @@
 
 #include <string.h>
 
+#ifdef USE_BUTTON_SENSOR
+#include "dev/button-sensor.h"
+#endif
+
 #ifdef SERIAL_LINE_USB
 #include "USB/USB_API/USB_Common/types.h"               //Basic Type declarations
 #include "USB/USB_API/USB_Common/usb.h"                 //USB-specific functions
@@ -32,6 +36,10 @@
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
 #define PRINTF(...) do {} while (0)
+#endif
+
+#ifdef USE_BUTTON_SENSOR
+SENSORS(&button_sensor);
 #endif
 
 //Indicates data has been received without an open rcv operation

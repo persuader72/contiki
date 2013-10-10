@@ -15,6 +15,7 @@ hello-world/wismote \
 hello-world/z1 \
 hello-world/sensinode \
 hello-world/cc2530dk \
+hello-world/colibri \
 ipv6/rpl-border-router/econotag \
 collect/sky \
 er-rest-example/sky \
@@ -24,6 +25,7 @@ netperf/sky \
 powertrace/sky \
 rime/sky \
 rime/z1 \
+rime/colibri \
 rest-example/sky \
 servreg-hack/sky \
 sky/sky \

@@ -5,6 +5,10 @@ endif
 CONTIKI_TARGET_SOURCEFILES += xmem.c infomem.c adc.c pwm.c mrf49xa.c mrf49xa_arch.c at25f512b.c
 CONTIKI_TARGET_SOURCEFILES += node-id-colibri.c colibri-lpm.c
 
+ifdef COLIBRI_USE_BUTTON_SENSOR
+CONTIKI_TARGET_SOURCEFILES += sensors.c button-sensor.c
+endif
+
 ifdef COLIBRI_USE_USB
 #CUSTOM_TARGET_SOURCEFILES += wdt.c console.c utils.c usb_printf.c
 CUSTOM_TARGET_SOURCEFILES += HAL_PMM.c HAL_TLV.c HAL_UCS.c
