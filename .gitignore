@@ -18,6 +18,7 @@
 *.avr-raven
 *.exp5438
 *.mb851
+*.colibri
 *.report
 summary
 *.summary
