@@ -117,11 +117,7 @@ void usb_printf_init(void) {
 /** Initializes modules and pins */
 void msp_init(void) {
 	//P1DIR |= BIT5|BIT6|BIT7;
-    // Stop the watchdog
-    //wdt_stop();
-    watchdog_stop();
 
-	WDTCTL = WDTPW | WDTHOLD;
     SFRIE1 &= ~WDTIE;
 
     // Initialize USB interface
@@ -280,6 +276,8 @@ int main(void) {
     }*/
 
     autostart_start(autostart_processes);
+    watchdog_start();
+
     // Main loop
     while(1) {  
         int r;
