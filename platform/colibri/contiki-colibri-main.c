@@ -9,7 +9,9 @@
 #include <stdint.h>
 
 //#include "usb_printf.h"
+#ifdef USE_RADIO
 #include "dev/mrf49xa.h"
+#endif
 #include "dev/infomem.h"
 #include "dev/adc.h"
 #include "colibri-lpm.h"
@@ -44,7 +46,7 @@ SENSORS(&button_sensor);
 
 //Indicates data has been received without an open rcv operation
 //volatile BYTE bCDCDataReceived_event = FALSE;
-
+#ifdef USE_RADIO
 void radio_setup(void){
 	uint8_t baud = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
 	uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
@@ -61,6 +63,7 @@ void radio_setup(void){
 	mrf49xa_init(baud,txpwr,band,channel);
 
 }
+#endif
 
 static void set_rime_addr(void) {
 	int i; rimeaddr_t n_addr;
@@ -252,7 +255,9 @@ int main(void) {
 
     adc_init();
     set_rime_addr();
+#ifdef USE_RADIO
     radio_setup();
+#endif
 
     node_id_restore();
     //random_init((unsigned short)node_id_colibri);
