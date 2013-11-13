@@ -30,7 +30,6 @@
  */
 #include "contiki.h"
 #include "dev/watchdog.h"
-
 /* dco_required set to 1 will cause the CPU not to go into
    sleep modes where the DCO clock stopped */
 int msp430_dco_required;
