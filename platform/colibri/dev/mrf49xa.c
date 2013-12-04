@@ -10,7 +10,7 @@
 #include <string.h>
 #include "dev/adc.h"
 #include "dev/leds.h"
-
+#include "utils.h"
 
 #define DEBUG 0
 #if DEBUG
@@ -445,6 +445,17 @@ PROCESS_THREAD(mrf49xa_process, ev, data) {
 			PRINTF ("\n");
 #endif
 
+			/*putchar('*');
+			putchar('\n');
+			for(i=0;i<rssiSample;i++){
+				 print_hex_buff(&(samples[i]),2);
+			     putchar('\n');
+			}*/
+			/*putchar('r');
+			putchar(':');
+			uint16_t rssiDbg = (rssi / rssiSample);
+			print_hex_buff(&(rssiDbg),2);
+		    putchar('\n');*/
 
 			if (rssiSample){
 				//PRINTF("sample: %d\n",rssiSample);

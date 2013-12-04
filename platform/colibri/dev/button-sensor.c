@@ -47,8 +47,9 @@ HWCONF_IRQ(BUTTON, 1, 3);
 /*---------------------------------------------------------------------------*/
 ISR(PORT1, irq_p1)
 {
-  P1OUT |= 0xE0;
+  P1OUT |= 0x80;
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
+
 
   if(BUTTON_CHECK_IRQ()) {
     //while(1) { BUTTON_CHECK_IRQ(); }
@@ -59,6 +60,7 @@ ISR(PORT1, irq_p1)
       LPM4_EXIT;
     }
   }
+  P1OUT &= ~0x80;
   P1IFG = 0x00;
   ENERGEST_OFF(ENERGEST_TYPE_IRQ);
 }

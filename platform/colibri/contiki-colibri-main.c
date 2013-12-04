@@ -17,9 +17,6 @@
 
 #include <string.h>
 
-#ifdef USE_BUTTON_SENSOR
-#include "dev/button-sensor.h"
-#endif
 
 #ifdef SERIAL_LINE_USB
 #include "USB/USB_API/USB_Common/types.h"               //Basic Type declarations
@@ -39,8 +36,11 @@
 #endif
 
 #ifdef USE_BUTTON_SENSOR
+#include "dev/button-sensor.h"
 SENSORS(&button_sensor);
 #endif
+
+#define NODEID_RESTORE_RETRY 8
 
 //Indicates data has been received without an open rcv operation
 //volatile BYTE bCDCDataReceived_event = FALSE;
@@ -257,7 +257,14 @@ int main(void) {
 #ifdef USE_MRF49XA
     radio_setup();
 #endif
-    node_id_restore();
+	//to avoid errata read from flash that sometimes occour at powerup (tapullo)
+	for(int i=NODEID_RESTORE_RETRY;i!=0;i--)
+	{
+		node_id_restore();
+		if(node_id_colibri)
+			break;
+	}
+
     //random_init((unsigned short)node_id_colibri);
     uint16_t seed = getRandomIntegerFromVLO();
     random_init((unsigned short)seed);
@@ -277,6 +284,8 @@ int main(void) {
         putchar('\n');
         seed = getRandomIntegerFromVLO();
     }*/
+//TODO aggiungere ifdef
+    process_start(&sensors_process, NULL);
 
     autostart_start(autostart_processes);
     watchdog_start();
