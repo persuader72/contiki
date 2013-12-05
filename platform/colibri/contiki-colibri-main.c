@@ -37,7 +37,7 @@
 
 #ifdef USE_BUTTON_SENSOR
 #include "dev/button-sensor.h"
-SENSORS(&button_sensor);
+//SENSORS(&button_sensor);
 #endif
 
 #define NODEID_RESTORE_RETRY 8
@@ -141,7 +141,11 @@ static void lpm_uart_enter(void) {
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
+#ifdef SENSORS_ENABLED
+	P1OUT = BIT3;
+#else
 	P1OUT = 0x00;
+#endif
 	P2OUT = BIT5;
 	P3OUT = BIT2|BIT1|BIT0;
 	P4OUT = 0x00;
@@ -149,12 +153,19 @@ static void lpm_msp430_enter(void) {
 	P6OUT = 0x00;
 	PJOUT = 0x00;
 
+#ifdef SENSORS_ENABLED
+	P1DIR = 0xF7;
+	P6DIR = ~ (BIT7|BIT1);
+	P1REN = BIT3;
+#else
 	P1DIR = 0xFF;
+	P6DIR = ~ BIT7;
+#endif;
 	P2DIR = ~ (BIT6|BIT2|BIT4);
 	P3DIR = 0xFF;
 	P4DIR = 0xFF;
 	P5DIR = 0xFF;
-	P6DIR = ~ BIT7;
+
 
 	PJDIR = 0xFF;
 }
@@ -258,12 +269,12 @@ int main(void) {
     radio_setup();
 #endif
 	//to avoid errata read from flash that sometimes occour at powerup (tapullo)
-	for(int i=NODEID_RESTORE_RETRY;i!=0;i--)
-	{
-		node_id_restore();
-		if(node_id_colibri)
+	//for(int i=NODEID_RESTORE_RETRY;i!=0;i--)
+	//{
+	node_id_restore();
+	/*	if(node_id_colibri)
 			break;
-	}
+	}*/
 
     //random_init((unsigned short)node_id_colibri);
     uint16_t seed = getRandomIntegerFromVLO();
@@ -284,8 +295,6 @@ int main(void) {
         putchar('\n');
         seed = getRandomIntegerFromVLO();
     }*/
-//TODO aggiungere ifdef
-    process_start(&sensors_process, NULL);
 
     autostart_start(autostart_processes);
     watchdog_start();

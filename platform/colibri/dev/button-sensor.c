@@ -56,11 +56,10 @@ ISR(PORT1, irq_p1)
     if(timer_expired(&debouncetimer)) {
       timer_set(&debouncetimer, CLOCK_SECOND / 4);
       sensors_changed(&button_sensor);
-      //P1OUT &= ~0x20;
+      P1OUT &= ~0x80;
       LPM4_EXIT;
     }
   }
-  P1OUT &= ~0x80;
   P1IFG = 0x00;
   ENERGEST_OFF(ENERGEST_TYPE_IRQ);
 }
@@ -79,11 +78,11 @@ static int configure(int type, int c) {
     	  BUTTON_SELECT();
     	  BUTTON_MAKE_INPUT();
     	  BUTTON_ENABLE_IRQ();
-    	  P1DIR &= ~(1 << 2);
+/*    	  P1DIR &= ~(1 << 2);
     	  P6DIR &= ~(1 << 0);
 
     	  P3DIR |= (1 << 1);
-    	  P3OUT |= (1 << 1);
+    	  P3OUT |= (1 << 1);*/
       }
     } else {
     	BUTTON_DISABLE_IRQ();
