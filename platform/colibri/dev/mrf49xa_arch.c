@@ -61,18 +61,44 @@
 #include "cc2420-arch-sfd.h"
 #endif*/
 
+static uint8_t isrCnt = 0;
+static uint8_t dioCnt = 0;
+#define MAX_DIO_CNT 5
 /*---------------------------------------------------------------------------*/
 ISR(MRF49XA_IRQ, mrf49xa_port2_interrupt)
 {
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
   //PRINTF("interrupt!!\n");
   MRF49XA_DISABLE_FIFOP_INT();
-  MRF49XA_CLEAR_FIFOP_INT();
+  MRF49XA_DISABLE_DIO_INT();
 
-  if(mrf49xa_interrupt()) {
-    LPM4_EXIT;
+  if(P2IFG & BV(MRF49XA_IRQ_PIN)){
+	  isrCnt++;
+	  if(mrf49xa_interrupt()) {
+	    LPM4_EXIT;
+	  }
+	  MRF49XA_CLEAR_FIFOP_INT();
+
+  }
+  if(P2IFG & BV(MRF49XA_DIO_PIN)){
+	  if(isrCnt){
+		  isrCnt = 0;
+		  dioCnt = 0;
+	  }
+	  else
+		  dioCnt++; // numero di impulsi su DIO senza dati validi
+	  if(dioCnt == MAX_DIO_CNT){
+		  setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
+		  setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
+		  uint16_t reg;
+		  readSR(&reg);                     //serve a far tornare alto IRQ*/
+		  isrCnt = 0;
+		  dioCnt = 0;
+	  }
+	  MRF49XA_CLEAR_DIO_INT();
   }
 
+  MRF49XA_ENABLE_DIO_INT();
   MRF49XA_ENABLE_FIFOP_INT();
   ENERGEST_OFF(ENERGEST_TYPE_IRQ);
 }
@@ -166,6 +192,13 @@ mrf49xa_arch_init(void)
   MRF49XA_EDGE_FALL_INT();
   MRF49XA_CLEAR_FIFOP_INT();
   MRF49XA_ENABLE_FIFOP_INT();
+
+  MRF49XA_DISABLE_DIO_INT();
+  MRF49XA_EDGE_FALL_DIO_INT();
+  MRF49XA_CLEAR_DIO_INT();
+  MRF49XA_ENABLE_DIO_INT();
+
+
 
 
   /*CC2420_VREG_PORT(DIR) |= BV(CC2420_VREG_PIN);

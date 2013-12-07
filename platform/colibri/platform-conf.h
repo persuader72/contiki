@@ -154,6 +154,12 @@ typedef unsigned long off_t;
 #define MRF49XA_CLEAR_FIFOP_INT()           do { P2IFG &= ~BV(MRF49XA_IRQ_PIN); } while (0)
 #define MRF49XA_EDGE_FALL_INT()             do { P2IES |=  BV(MRF49XA_IRQ_PIN); } while (0)
 
+#define MRF49XA_ENABLE_DIO_INT()            do { P2IE  |=  BV(MRF49XA_DIO_PIN); } while (0)
+#define MRF49XA_DISABLE_DIO_INT()           do { P2IE  &= ~BV(MRF49XA_DIO_PIN); } while (0)
+#define MRF49XA_CLEAR_DIO_INT()             do { P2IFG &= ~BV(MRF49XA_DIO_PIN); } while (0)
+#define MRF49XA_EDGE_FALL_DIO_INT()         do { P2IES |=  BV(MRF49XA_DIO_PIN); } while (0)
+
+
 
 /*// Colibri module general purpose pin definition
 #define COLIBRI_GPIO_PINS 2

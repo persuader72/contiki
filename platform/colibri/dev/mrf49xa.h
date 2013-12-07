@@ -133,7 +133,8 @@ enum mrf49xa_register {
          MRF49XA_BCSREG      =  0xc0 ,
          MRF49XA_PLLCREG     =  0xcc };
 
-
+void setReg(enum mrf49xa_register regname, unsigned value);
+void readSR(uint16_t *value);
 
 //***********************************************************************/
 // Additional SPI Macros for the MRF49XA */
