@@ -709,6 +709,11 @@ static int on(void) {
 	clock_wait(3);						// wait 10ms for oscillator to stablize
 	setReg(MRF49XA_PMCREG,     0xd9);	// turn off transmitter, turn on receiver
 
+	setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
+	setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
+	uint16_t reg;
+	readSR(&reg);                     //serve a far tornare alto IRQ*/
+
 	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
 	SPI_WRITE(0xAB);
 	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
@@ -727,7 +732,7 @@ static int off(void) {
 
     setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 	setReg(MRF49XA_PMCREG,     0x0);
-	clock_wait(30);
+	//clock_wait(30);
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
 	P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
 	P2SEL &= ~BIT7;

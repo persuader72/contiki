@@ -199,8 +199,6 @@ mrf49xa_arch_init(void)
   MRF49XA_ENABLE_DIO_INT();
 
 
-
-
   /*CC2420_VREG_PORT(DIR) |= BV(CC2420_VREG_PIN);
   CC2420_RESET_PORT(DIR) |= BV(CC2420_RESET_PIN);
 
@@ -209,6 +207,10 @@ mrf49xa_arch_init(void)
 #endif*/
 
   MRF49XA_SPI_DISABLE();                // Unselect radio. */
+
+  AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
+  SPI_WRITE(0xAB);
+  AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
 }
 /*---------------------------------------------------------------------------*/
 

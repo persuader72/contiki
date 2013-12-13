@@ -185,6 +185,8 @@ static void lpm_msp430_exit(void) {
 }
 
 static void lpm_enter(void) {
+	leds_on(LEDS_BLUE);
+	leds_off(LEDS_BLUE);
 	CLEAR_LPM_REQUEST(LPM_IS_ENABLED);
 	lpm_uart_enter();
 	lpm_msp430_enter();
