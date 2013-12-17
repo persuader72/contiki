@@ -44,7 +44,7 @@ static uint16_t rxcreg;
 static uint16_t txcreg;
 static uint16_t gencreg;
 static clock_time_t timeout;
-static uint8_t POR = 1; //power on reset
+//static uint8_t POR = 1; //power on reset
 
 //clock time is in 7ms tick.
 //bytes are trasmitted at 56kbps (142us@byte).
@@ -700,13 +700,13 @@ static int on(void) {
 	UCA0IE &= ~UCTXIFG;
 	UCA0CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
 
-	if(POR){
+	/*if(POR){
 		clock_wait(30);
 		POR = 0;
 	}
 	// antenna tuning on startup
 	setReg(MRF49XA_PMCREG,     0x21);	// turn on the transmitter
-	clock_wait(3);						// wait 10ms for oscillator to stablize
+	clock_wait(3);						// wait 10ms for oscillator to stablize*/
 	setReg(MRF49XA_PMCREG,     0xd9);	// turn off transmitter, turn on receiver
 
 	setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
