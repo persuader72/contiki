@@ -55,6 +55,8 @@ Berlin, 2006
   #error "infomem position (INFOMEM_START) and block size (INFOMEM_BLOCK_SIZE) need to be defined for the platform"
 #endif
 
+#define OPTIONS_BACKBONE_NODE	0x8000
+
 // Start at 0x0000
 typedef struct infomem_addresses_t {
 	uint32_t nodeId;					// @0x00
