@@ -260,7 +260,22 @@ void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch){
 	uint16_t freqb = 96+ch*166+ch/2+ch%2;
 	//PRINTF("write MRF49XA_CFSREG @ %d\n",freqb);
 	setReg(MRF49XA_CFSREG,freqb);
+}
 
+uint16_t mrf49xa_readRssi() {
+	uint8_t i = 8;
+	uint32_t timeout;
+	uint32_t rssi_sum = 0;
+	while(i--) {
+		timeout = 5000;
+		start_adc(ADC_CH7);
+		while(checkAdcBusy() && timeout) {
+			timeout--;
+		}
+		if(timeout) rssi_sum += getAdcSample();
+	}
+	rssi_sum = (rssi_sum >> 3);
+	return (uint16_t)rssi_sum;
 }
 
 // driver mandatory functions
