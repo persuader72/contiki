@@ -45,25 +45,6 @@
 //Indicates data has been received without an open rcv operation
 //volatile BYTE bCDCDataReceived_event = FALSE;
 
-#ifdef USE_MRF49XA
-void radio_setup(void){
-	uint8_t baud = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
-	uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
-	//uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_7DB : INFOMEM_STRUCT_A->radio.txPower;
-	//uint8_t rssi = INFOMEM_STRUCT_A->radio.minRssi == 0xFF ? MRF49XA_RSSI_79DB : INFOMEM_STRUCT_A->radio.minRssi;
-	uint8_t band = INFOMEM_STRUCT_A->radio.band == 0xFF ? MRF49XA_BAND_868 : INFOMEM_STRUCT_A->radio.band;
-	uint8_t channel = INFOMEM_STRUCT_A->radio.channel > MRF49XA_MAX_CHANNEL ? MRF49XA_DEF_CHANNEL : INFOMEM_STRUCT_A->radio.channel;
-
-	//mrf49xa_setDataRate(baud,band);
-	//mrf49xa_setTxPwr(txpwr);
-	//mrf49xa_setRxRssi(MRF49XA_RSSI_79DB,MRF49XA_LNA_0DB);
-
-	//mrf49xa_init(baud,txpwr,band,channel);
-	mrf49xa_init(baud,txpwr,band,channel);
-
-}
-#endif
-
 static void set_rime_addr(void) {
 	int i; rimeaddr_t n_addr;
 
@@ -160,7 +141,7 @@ static void lpm_msp430_enter(void) {
 #else
 	P1DIR = 0xFF;
 	P6DIR = ~ BIT7;
-#endif;
+#endif
 	P2DIR = ~ (BIT6|BIT2|BIT4);
 	P3DIR = 0xFF;
 	P4DIR = 0xFF;
@@ -268,7 +249,11 @@ int main(void) {
     adc_init();
     set_rime_addr();
 #ifdef USE_MRF49XA
-    radio_setup();
+    {
+		uint8_t baud = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
+		uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
+		mrf49xa_init(baud,txpwr,INFOMEM_STRUCT_A->radio.band,INFOMEM_STRUCT_A->radio.channel);
+    }
 #endif
 	//to avoid errata read from flash that sometimes occour at powerup (tapullo)
 	//for(int i=NODEID_RESTORE_RETRY;i!=0;i--)

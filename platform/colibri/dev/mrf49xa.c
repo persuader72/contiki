@@ -248,8 +248,10 @@ void mrf49xa_setRxRssi(mrf49xa_rxRSSI rxRSSI, mrf49xa_gainLNA gainLNA){
 // Allowed channel are fro 0 to 23.
 // channel separation: 0.828MHz @ 868MHz, 1.241MHz @ 916MHz
 
-void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch){
-
+void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch) {
+	// Predefined values for band and channel
+	if(band == 0xFF) band = MRF49XA_DEF_BAND;
+	if(ch > MRF49XA_MAX_CHANNEL) ch = MRF49XA_DEF_CHANNEL;
 	//banda
 	gencreg &= 0xCF; // leave TSDEN, FIFOEN, LCS bit unchanged
 	gencreg |= band << BAND_BIT;
@@ -260,6 +262,9 @@ void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch){
 	uint16_t freqb = 96+ch*166+ch/2+ch%2;
 	//PRINTF("write MRF49XA_CFSREG @ %d\n",freqb);
 	setReg(MRF49XA_CFSREG,freqb);
+	// Wait about 1ms for PLL to stabilize.
+	// FIXME check if clock_delay(300) is 1ms wait
+	clock_delay(300);
 }
 
 uint16_t mrf49xa_readRssi() {

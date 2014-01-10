@@ -69,9 +69,13 @@
 
 #define PACKETBUF_CONF_ATTRS_INLINE 1
 
-#ifndef RF_CHANNEL
-#define RF_CHANNEL              		26
-#endif /* RF_CHANNEL */
+#ifndef MRF49XA_DEF_BAND
+#define MRF49XA_DEF_BAND					MRF49XA_BAND_868
+#endif
+
+#ifndef MRF49XA_DEF_CHANNEL
+#define MRF49XA_DEF_CHANNEL              	12
+#endif
 
 #define CONTIKIMAC_CONF_BROADCAST_RATE_LIMIT 0
 

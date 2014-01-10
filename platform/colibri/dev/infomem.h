@@ -130,6 +130,7 @@ typedef struct infomem_a_t {
 }infomem_a;
 
 #define INFOMEM_STRUCT_A ((infomem_a *)INFOMEM_START)
+#define IM_OPTIONS INFOMEM_STRUCT_A->addresses.options
 
 /**
  * @brief	Read bytes from infomemory

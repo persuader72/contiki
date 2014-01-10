@@ -5,7 +5,6 @@
 #include "dev/spi.h"
 #include "dev/radio.h"
 
-
 #define OTXPWR_BIT 0
 // Power is -xdB so MRF49XA_0DB is the maximum output power
 typedef enum _mrf49xa_oTxPwr {
@@ -90,8 +89,6 @@ typedef enum _mrf49xa_band {
 } mrf49xa_band;
 
 #define MRF49XA_MAX_CHANNEL 23
-#define MRF49XA_DEF_CHANNEL 12
-
 
 int mrf49xa_interrupt(void);
 int mrf49xa_init(mrf49xa_baudRate baud, mrf49xa_oTxPwr pwr, mrf49xa_band band, uint8_t channel);
