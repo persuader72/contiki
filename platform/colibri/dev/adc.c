@@ -66,7 +66,7 @@ uint16_t get_adc(ADC_CH channel){
 	if ((ADC10MCTL0 &  0xf ) != channel){
 		ADC10MCTL0 &=  0xfff0;
 		ADC10MCTL0 |= channel;  // imposto il canale
-	    clock_delay(100);                         // Delay (~3us) for channel to settle
+	    clock_delay(300);       // Delay (~3us) for channel to settle
 	}
     ADC10CTL0 |= ADC10ENC | ADC10SC;        // Sampling and conversion start
     while (ADC10CTL1 & ADC10BUSY);          // ADC10BUSY?

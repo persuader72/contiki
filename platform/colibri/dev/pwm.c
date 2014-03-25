@@ -39,6 +39,16 @@ void pwm_setPort(uint8_t port){
 				PWM_CH1_PORT(SEL) &= ~PWM_CH1_BIT;
 			}
 			break;
+		case 2:
+			if (port & PWM_CH2 ){
+				PWM_CH2_PORT(DIR) |= PWM_CH2_BIT;
+				PWM_CH2_PORT(SEL) |= PWM_CH2_BIT;
+			}
+			else{
+				PWM_CH2_PORT(DIR) &= ~PWM_CH2_BIT;
+				PWM_CH2_PORT(SEL) &= ~PWM_CH2_BIT;
+			}
+			break;
 		default:
 			break;
 		}
@@ -51,8 +61,8 @@ void pwm_setPort(uint8_t port){
 void pwm_init(void){
 
 	//moved to ioInit
-	  P1SEL |= BIT4; // | BIT2 | BIT3;  // P1.2 TA0.1
-	  P1DIR |= BIT4;// | BIT2 | BIT3;  // P1.2 TA0.1
+	  //P1SEL |= BIT4; // | BIT2 | BIT3;  // P1.2 TA0.1
+	  //P1DIR |= BIT4;// | BIT2 | BIT3;  // P1.2 TA0.1
 
 	  TA0CCR0 = 128;                            // PWM Period/2
 
@@ -60,7 +70,7 @@ void pwm_init(void){
 	  TA0CCR1 = 32;                             // CCR1 PWM duty cycle
 
 	  TA0CCTL3 = OUTMOD_7;                      // CCR3 toggle/set
-	  TA0CCR3 = 96;                             // CCR3 PWM duty cycle
+	  TA0CCR3 = 128;                             // CCR3 PWM duty cycle
 	  TA0CTL = TASSEL_2 | MC_1 | TACLR;         // SMCLK, up-down mode, clear TAR
 
 }

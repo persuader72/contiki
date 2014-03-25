@@ -101,6 +101,7 @@ void mrf49xa_setRxRssi(mrf49xa_rxRSSI rxRSSI, mrf49xa_gainLNA gainLNA);
 void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch);
 //void mrf49xa_setFifoRstReg(uint8_t value);
 uint16_t mrf49xa_readRssi();
+uint8_t mrf49xa_isReceiving(void);
 
 #define TXDEN  0x80
 #define FIFOEN 0x40

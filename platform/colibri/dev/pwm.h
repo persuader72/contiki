@@ -50,15 +50,21 @@ Todi, 2013
 #ifndef PWM_H
 #define PWM_H
 
-#define PWM_CHANNELS 2
+
+#define PWM_CHANNELS 3
+#define PWM_OFF 0
 #define PWM_CH0 1
 #define PWM_CH1 2
+#define PWM_CH2 4
 
 #define PWM_CH0_PORT(type) P1##type
 #define PWM_CH0_BIT        BIT2
 
 #define PWM_CH1_PORT(type) P1##type
 #define PWM_CH1_BIT        BIT3
+
+#define PWM_CH2_PORT(type) P1##type
+#define PWM_CH2_BIT        BIT4
 
 
 void pwm_init(void);

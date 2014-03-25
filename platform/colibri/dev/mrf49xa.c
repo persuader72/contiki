@@ -283,6 +283,17 @@ uint16_t mrf49xa_readRssi() {
 	return (uint16_t)rssi_sum;
 }
 
+uint8_t mrf49xa_isReceiving(void){
+	return mrf49xa_pending;
+}
+
+void resetRadioFlags(){
+	mrf49xa_pending = 0;
+	mrf49xa_recvlen = 0;
+	rssi = 0;
+	rssiSample = 0;
+}
+
 // driver mandatory functions
 
 void testSpi(void){
@@ -394,7 +405,7 @@ mrf49xa_interrupt(void)
     			 rssiSample++;
     		 }
     	 }
-    	 if (adcStatus & DIRTY || adcStatus == 0){ //se l'adc è sporco o non ho precedenti conversioni in corso
+    	 if ((adcStatus & DIRTY) || (adcStatus == 0)){ //se l'adc è sporco o non ho precedenti conversioni in corso
     		 start_adc(ADC_CH7);                        // avvio una nuova conversione
     	 }
      }
@@ -498,10 +509,7 @@ PROCESS_THREAD(mrf49xa_process, ev, data) {
 int
 mrf49xa_init(mrf49xa_baudRate baud, mrf49xa_oTxPwr pwr, mrf49xa_band band, uint8_t channel)
 {
-	// Inizializza il riconoscimento del frame a livello fisico
-	mrf49xa_pending = 0;
-	rssi = 0;
-	rssiSample = 0;
+	resetRadioFlags();
 
     PRINTF("MRF49XA init...\n");
 	MRF49XA_DISABLE_FIFOP_INT();
@@ -690,6 +698,8 @@ pending_packet(void)
 }
 /*---------------------------------------------------------------------------*/
 static int on(void) {
+
+	resetRadioFlags();
 	//leds_on(LEDS_BLUE);
 	//spi_init();
 	adc_init();
@@ -733,6 +743,7 @@ static int on(void) {
 	setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
 	uint16_t reg;
 	readSR(&reg);                     //serve a far tornare alto IRQ*/
+	clock_delay(150);                 //TODO verificare attesa di 250us
 
 	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
 	SPI_WRITE(0xAB);

@@ -122,33 +122,35 @@ static void lpm_uart_enter(void) {
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
+	P1DIR = 0xFF;           //all output changed if SENSORS_ENABLED
+	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
+	P3DIR = 0xFF;           //all output
+	P4DIR = 0xFF;           //all output changed if SENSORS_ENABLED
+	P5DIR = 0xFF;           //all output
+	P6DIR = ~ (BIT0);       //LBI input. RSSIO as output. Pin low when radio is sleeping
+
+	PJDIR = 0xFF;           //all output
+
+
+
 #ifdef SENSORS_ENABLED
-	P1OUT = BIT3;
-#else
-	P1OUT = 0x00;
+#if BATTERY_CHARGER
+	P1DIR &= ~(BIT3); //VEXT_PRES input
 #endif
+#if REMOTE_CMD
+	P1DIR &= ~(BIT1|BIT0); //BTN1 + BTN0 input
+	P4DIR &= ~(BIT2|BIT1); //BTN3 + BTN2 input
+#endif
+#endif
+
+	P1OUT = 0x00;
 	P2OUT = BIT5;
-	P3OUT = BIT2|BIT1|BIT0;
+	P3OUT = BIT2|BIT1;
 	P4OUT = 0x00;
 	P5OUT = 0x00;
 	P6OUT = 0x00;
 	PJOUT = 0x00;
 
-#ifdef SENSORS_ENABLED
-	P1DIR = 0xF7;
-	P6DIR = ~ (BIT7|BIT1);
-	P1REN = BIT3;
-#else
-	P1DIR = 0xFF;
-	P6DIR = ~ BIT7;
-#endif
-	P2DIR = ~ (BIT6|BIT2|BIT4);
-	P3DIR = 0xFF;
-	P4DIR = 0xFF;
-	P5DIR = 0xFF;
-
-
-	PJDIR = 0xFF;
 }
 
 static void lpm_uart_exit() {
@@ -163,11 +165,18 @@ static void lpm_uart_exit() {
 
 static void lpm_msp430_exit(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
+
+	P6DIR &= ~ (BIT7);       //RSSIO as input
+#ifdef SENSORS_ENABLED
+#if BATTERY_CHARGER
+	P6DIR &= ~ (BIT1|BIT2);   //VSENSE, ISENSE as input
+#endif
+#endif
 }
 
 static void lpm_enter(void) {
-	leds_on(LEDS_BLUE);
-	leds_off(LEDS_BLUE);
+	//leds_on(LEDS_BLUE);
+	//leds_off(LEDS_BLUE);
 	CLEAR_LPM_REQUEST(LPM_IS_ENABLED);
 	lpm_uart_enter();
 	lpm_msp430_enter();
