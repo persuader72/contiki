@@ -160,9 +160,10 @@ typedef unsigned long off_t;
 #define MRF49XA_EDGE_FALL_DIO_INT()         do { P2IES |=  BV(MRF49XA_DIO_PIN); } while (0)
 
 //posizione del bit dello switch nella variabile
-#define BC_BIT 1
-#define WU_BIT 2
-
+#define BC_BIT       0x01
+#define WU_BIT       0x02
+#define BC_EVENT_BIT (BC_BIT<<8)
+#define WU_EVENT_BIT (WU_BIT<<8)
 
 /*// Colibri module general purpose pin definition
 #define COLIBRI_GPIO_PINS 2

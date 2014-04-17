@@ -107,14 +107,14 @@ void msp430f53xx_init_dco(void)
 		SFRIFG1 &= ~OFIFG;                      // Clear fault flags
 	  }while (SFRIFG1&OFIFG);                   // Test oscillator fault flag
 
-
+/*
 	  PMAPPWD = 0x02D52;                        // Enable Write-access to modify port mapping registers
 	  P4MAP7 = PM_MCLK;
 	  PMAPPWD = 0;                              // Disable Write-Access to modify port mapping registers
 
 	  P4SEL |= BIT7;
 	  P4DIR |= BIT7;   // MCLK set out to pins
-
+*/
 }
 
 /*---------------------------------------------------------------------------*/

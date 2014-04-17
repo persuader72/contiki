@@ -50,6 +50,8 @@ Todi, 2013
 #ifndef PWM_H
 #define PWM_H
 
+#define PWM_DEF_PERIOD 64
+
 
 #define PWM_CHANNELS 3
 #define PWM_OFF 0
@@ -61,14 +63,16 @@ Todi, 2013
 #define PWM_CH0_BIT        BIT2
 
 #define PWM_CH1_PORT(type) P1##type
-#define PWM_CH1_BIT        BIT3
+#define PWM_CH1_BIT        BIT4
 
 #define PWM_CH2_PORT(type) P1##type
-#define PWM_CH2_BIT        BIT4
+#define PWM_CH2_BIT        BIT5
 
-
+uint8_t isPwmInit(void);
 void pwm_init(void);
-void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty[]);
+void pwm_disablePort(uint8_t ports);
+void pwm_enablePort(uint8_t ports);
+void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty, uint8_t port);
 void pwm_setPort(uint8_t port);
 
 #endif // !PWM_H

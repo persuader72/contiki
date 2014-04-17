@@ -122,27 +122,30 @@ static void lpm_uart_enter(void) {
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
+#if COLIBRI_USE_BUTTON_SENSOR
+#else
 	P1DIR = 0xFF;           //all output changed if SENSORS_ENABLED
+#endif
+
 	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
 	P3DIR = 0xFF;           //all output
+#if COLIBRI_USE_BUTTON_SENSOR
+#else
 	P4DIR = 0xFF;           //all output changed if SENSORS_ENABLED
+#endif
 	P5DIR = 0xFF;           //all output
 	P6DIR = ~ (BIT0);       //LBI input. RSSIO as output. Pin low when radio is sleeping
 
 	PJDIR = 0xFF;           //all output
 
 
-
-#ifdef SENSORS_ENABLED
-#if BATTERY_CHARGER
+/*
+#if COLIBRI_USE_BUTTON_SENSOR
 	P1DIR &= ~(BIT3); //VEXT_PRES input
-#endif
-#if REMOTE_CMD
 	P1DIR &= ~(BIT1|BIT0); //BTN1 + BTN0 input
 	P4DIR &= ~(BIT2|BIT1); //BTN3 + BTN2 input
 #endif
-#endif
-
+*/
 	P1OUT = 0x00;
 	P2OUT = BIT5;
 	P3OUT = BIT2|BIT1;
@@ -231,15 +234,6 @@ uint16_t getRandomIntegerFromVLO(void)
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
-	leds_on(LEDS_RED);
-	leds_on(LEDS_GREEN);
-	leds_on(LEDS_YELLOW);
-
-	clock_delay(10000);
-
-	leds_off(LEDS_RED);
-	leds_off(LEDS_GREEN);
-	leds_off(LEDS_YELLOW);
 
 #ifdef SERIAL_LINE_USB
     msp_init();
@@ -254,6 +248,23 @@ int main(void) {
     process_init();
     process_start(&etimer_process, NULL);
     ctimer_init();
+
+	uint8_t i;
+	for(i=0;i<4;i++){
+		leds_off(LEDS_ALL);
+		switch(i){
+		case 0:
+			leds_on(LEDS_RED);
+			break;
+		case 1:
+			leds_on(LEDS_GREEN);
+			break;
+		case 2:
+			leds_on(LEDS_YELLOW);
+			break;
+		}
+		clock_wait(20);
+	}
 
     adc_init();
     set_rime_addr();

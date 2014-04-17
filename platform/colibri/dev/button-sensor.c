@@ -37,11 +37,6 @@
 #include "isr_compat.h"
 #include "sys/cc.h"
 
-//#define DBG
-#ifdef DBG
-#define REMOTE_CMD 1
-#define BATTERY_CHARGER 1
-#endif
 
 //posizione del bit dello switch nella variabile
 //#define BC_BIT 0
@@ -55,7 +50,7 @@ static CC_INLINE int notIrq() {return 0;}
 #define NOT_IRQ notIrq
 
 static int status(int type);
-#if REMOTE_CMD
+#if COLIBRI_USE_DISPLAY
 //SW3 - wake up button
 HWCONF_PIN(BUTTON_WU, 1, 0);
 HWCONF_IRQ(BUTTON_WU, 1, 0);
@@ -65,7 +60,7 @@ HWCONF_IRQ(BUTTON_WU, 1, 0);
 #endif
 
 
-#if BATTERY_CHARGER
+#if COLIBRI_USE_BATTERY_CHARGER
 HWCONF_PIN(BUTTON_BC, 1, 3);
 HWCONF_IRQ(BUTTON_BC, 1, 3);
 #define BC_IRQ BUTTON_BC_CHECK_IRQ
@@ -73,14 +68,18 @@ HWCONF_IRQ(BUTTON_BC, 1, 3);
 #define BC_IRQ NOT_IRQ
 #endif
 
+int btnStatus = 0;
+
 /*---------------------------------------------------------------------------*/
 ISR(PORT1, irq_p1)
 {
   P1OUT |= 0x80;
   ENERGEST_ON(ENERGEST_TYPE_IRQ);
 
+  btnStatus  = ( WU_IRQ() ? (WU_EVENT_BIT) : 0);
+  btnStatus |= ( BC_IRQ() ? (BC_EVENT_BIT) : 0);
 
-  if(WU_IRQ() || BC_IRQ()) {
+  if(btnStatus) {
     //while(1) { BUTTON_CHECK_IRQ(); }
     if(timer_expired(&debouncetimer)) {
       timer_set(&debouncetimer, CLOCK_SECOND / 4);
@@ -96,13 +95,15 @@ ISR(PORT1, irq_p1)
 static int value(int type) {
 	int status = 0;
 	// NB la lettura è invertita. Il bottone premuto vale 0
-#if BATTERY_CHARGER
-	status |= (BUTTON_BC_READ() ? 0 : BC_BIT);
+	btnStatus &= 0xFF00;
+#if COLIBRI_USE_BATTERY_CHARGER
+	btnStatus |= (BUTTON_BC_READ() ? 0 : BC_BIT);
 #endif
-#if REMOTE_CMD
-	status |= (BUTTON_WU_READ() ? 0 : WU_BIT) ;
+#if COLIBRI_USE_DISPLAY
+	btnStatus |= (BUTTON_WU_READ() ? 0 : WU_BIT) ;
 #endif
-  return status; // || !timer_expired(&debouncetimer);
+
+  return btnStatus; // || !timer_expired(&debouncetimer);
 }
 /*---------------------------------------------------------------------------*/
 static int configure(int type, int c) {
@@ -112,13 +113,13 @@ static int configure(int type, int c) {
       if(!status(SENSORS_ACTIVE)) {
     	  P1IFG = 0x00;
     	  timer_set(&debouncetimer, 0);
-#if REMOTE_CMD
+#if COLIBRI_USE_DISPLAY
     	  BUTTON_WU_IRQ_EDGE_SELECTD();
     	  BUTTON_WU_SELECT();
     	  BUTTON_WU_MAKE_INPUT();
     	  BUTTON_WU_ENABLE_IRQ();
 #endif
-#if BATTERY_CHARGER
+#if COLIBRI_USE_BATTERY_CHARGER
     	  BUTTON_BC_IRQ_EDGE_SELECTD();
     	  BUTTON_BC_SELECT();
     	  BUTTON_BC_MAKE_INPUT();
@@ -131,10 +132,10 @@ static int configure(int type, int c) {
     	  P3OUT |= (1 << 1);*/
       }
     } else {
-#if REMOTE_CMD
+#if COLIBRI_USE_DISPLAY
     	BUTTON_WU_DISABLE_IRQ();
 #endif
-#if BATTERY_CHARGER
+#if COLIBRI_USE_BATTERY_CHARGER
     	BUTTON_BC_DISABLE_IRQ();
 #endif
     }
