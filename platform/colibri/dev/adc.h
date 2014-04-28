@@ -31,6 +31,8 @@
  *
  *
  */
+#ifndef __ADC_H__
+#define __ADC_H__
 
 #define DIRTY               0x10
 #define HIGH_PRIORITY_LOCK  0x01
@@ -58,8 +60,6 @@ typedef enum _MSP430_ADC_CH{
 	ADC_CH15 = 15 << MSP430_ADC_CH_BIT,
 } ADC_CH;
 
-#ifndef __ADC_H__
-#define __ADC_H__
 
 void adc_init();
 uint8_t  start_adc(ADC_CH channel); // start  adc a bassa priorità

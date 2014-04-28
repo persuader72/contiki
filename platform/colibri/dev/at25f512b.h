@@ -107,6 +107,7 @@ void at52f512_read(uint32_t address, uint8_t *buff, uint8_t len);
 void at52f512_write(uint32_t address, uint8_t *buff, uint8_t len);
 void at25f512_erase(at25f512b_instr blockSize, uint32_t address);
 void at25f512_rdOTP(uint32_t address, uint8_t *buff, uint8_t len);
+void at25f512_wrOTP(uint32_t address, uint8_t *buff, uint8_t len);
 uint8_t at25f512_Rdsr();
 uint16_t at25f512_RdID();
 void at25f512_DP(at25f512b_dpMode mode);

@@ -308,13 +308,14 @@ void testSpi(void){
     reg &= LBTD_BIT;
     PRINTF("LBTD_BIT: %X\n",reg);
 }
-
+#if DEBUG
 void mrf49xa_print_hex_byte(uint8_t byte) {
 	uint8_t nibble = (byte>>4) & 0x0F;
 	putchar(nibble<10?'0'+nibble:'A'+nibble-10);
 	nibble = byte & 0x0F;
 	putchar(nibble<10?'0'+nibble:'A'+nibble-10);
 }
+#endif
 
 uint8_t mrf49xa_get_byte(void)
 {
@@ -442,7 +443,7 @@ uint8_t crcCheck(uint8_t *buff, uint8_t len){
 
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(mrf49xa_process, ev, data) {
-	int i;
+	//int i;
 	PROCESS_BEGIN();
 	PRINTF("mrf49xa_process: started\n");
 

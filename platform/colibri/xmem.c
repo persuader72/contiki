@@ -6,7 +6,7 @@ void xmem_init(void) {
 }
 
 int xmem_pread(void *_p, int size, unsigned long offset) {
-	uint8_t t,i;
+	//uint8_t t,i;
 	/*printf("add:0x");
 	for(i=0;i<sizeof(unsigned long);i++){
 		t = (offset >> (sizeof(unsigned long)-1-i)*8)&0xff;

@@ -93,7 +93,7 @@ ISR(PORT1, irq_p1)
 }
 /*---------------------------------------------------------------------------*/
 static int value(int type) {
-	int status = 0;
+	//int status = 0;
 	// NB la lettura è invertita. Il bottone premuto vale 0
 	btnStatus &= 0xFF00;
 #if COLIBRI_USE_BATTERY_CHARGER
