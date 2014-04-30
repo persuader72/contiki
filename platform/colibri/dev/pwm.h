@@ -68,8 +68,11 @@ Todi, 2013
 #define PWM_CH2_PORT(type) P1##type
 #define PWM_CH2_BIT        BIT5
 
+#define PWM_ON  1
+#define PWM_OFF 0
+
 uint8_t isPwmInit(void);
-void pwm_init(void);
+void pwm_init(uint8_t status);
 void pwm_disablePort(uint8_t ports);
 void pwm_enablePort(uint8_t ports);
 void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty, uint8_t port);

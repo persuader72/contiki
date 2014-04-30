@@ -42,8 +42,10 @@ void pwm_enablePort(uint8_t port){
 
 }
 
-void pwm_init(void){
 
+void pwm_init(uint8_t status){
+
+	if(status){
 	  init = 1;
 	  //moved to ioInit
 	  //P1SEL |= BIT4; // | BIT2 | BIT3;  // P1.2 TA0.1
@@ -57,6 +59,13 @@ void pwm_init(void){
 	  TA0CCTL3 = OUTMOD_7;                      // CCR3 toggle/set
 	  TA0CCR3 = PWM_DEF_PERIOD;                             // CCR3 PWM duty cycle
 	  TA0CTL = TASSEL_2 | MC_1 | TACLR;         // SMCLK, up-down mode, clear TAR
+	}
+	else
+	{
+		init = 0;
+		TA0CTL = 0;
+
+	}
 
 }
 

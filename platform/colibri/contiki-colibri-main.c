@@ -326,7 +326,7 @@ int main(void) {
         } else {
         	if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
             watchdog_stop();
-            __bis_SR_register(GIE | LPM3_bits);
+            (lpm_active()) ? __bis_SR_register(GIE | LPM3_bits) : __bis_SR_register(GIE | LPM0_bits) ;
             watchdog_start();
             if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
         }

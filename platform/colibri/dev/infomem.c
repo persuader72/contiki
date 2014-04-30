@@ -72,10 +72,11 @@ infomem_write(void *data, unsigned int offset, unsigned char size )
   uint32_t *flash;
   uint8_t *bufdata;
 
+
   int s;
 
-  if(offset > (2 * INFOMEM_BLOCK_SIZE)) return 0;
-  flash = (uint32_t *)INFOMEM_START;
+  if(offset%INFOMEM_BLOCK_SIZE + size >= 128) return 0;
+  flash = (uint32_t *)(INFOMEM_START + offset/INFOMEM_BLOCK_SIZE);
 
   s = splhigh();
 
