@@ -122,20 +122,28 @@ static void lpm_uart_enter(void) {
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
-#if COLIBRI_USE_BUTTON_SENSOR
+#if COLIBRI_USE_DISPLAY //if display leave BTN1 as input
+	P1DIR &= ~ (BIT0);
 #else
-	P1DIR = 0xFF;           //all output changed if SENSORS_ENABLED
+	P1DIR |= BIT0;  // if not display BTN1 as output
 #endif
+#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
+	P1DIR &= ~ (BIT3);
+#else
+	P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
+#endif
+	P1DIR |= 0xF6;           //all other pin as output
 
 	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
 	P3DIR = 0xFF;           //all output
 #if COLIBRI_USE_BUTTON_SENSOR
+	P4DIR |= (BIT5 | BIT4); //uart line as output
 #else
 	P4DIR = 0xFF;           //all output changed if SENSORS_ENABLED
 #endif
 	P5DIR = 0xFF;           //all output
-	P6DIR = ~ (BIT0);       //LBI input. RSSIO as output. Pin low when radio is sleeping
-
+	//P6DIR = ~ (BIT0);       //LBI input. RSSIO as output. Pin low when radio is sleeping
+	P6DIR = 0xFF;
 	PJDIR = 0xFF;           //all output
 
 
@@ -169,7 +177,7 @@ static void lpm_uart_exit() {
 static void lpm_msp430_exit(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
 
-	P6DIR &= ~ (BIT7);       //RSSIO as input
+	P6DIR &= ~ (BIT7|BIT0);       //RSSIO as input + LBI as input
 #ifdef SENSORS_ENABLED
 #if BATTERY_CHARGER
 	P6DIR &= ~ (BIT1|BIT2);   //VSENSE, ISENSE as input
