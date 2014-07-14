@@ -63,10 +63,10 @@ Todi, 2013
 #define PWM_CH0_BIT        BIT2
 
 #define PWM_CH1_PORT(type) P1##type
-#define PWM_CH1_BIT        BIT4
+#define PWM_CH1_BIT        BIT3
 
 #define PWM_CH2_PORT(type) P1##type
-#define PWM_CH2_BIT        BIT5
+#define PWM_CH2_BIT        BIT4
 
 #define PWM_ON  1
 #define PWM_OFF 0

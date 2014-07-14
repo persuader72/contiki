@@ -56,8 +56,8 @@ void pwm_init(uint8_t status){
 	  TA0CCTL1 = OUTMOD_7;                      // CCR1 toggle/set
 	  TA0CCR1 = PWM_DEF_PERIOD/2;                             // CCR1 PWM duty cycle
 
-	  TA0CCTL3 = OUTMOD_7;                      // CCR3 toggle/set
-	  TA0CCR3 = PWM_DEF_PERIOD;                             // CCR3 PWM duty cycle
+	  TA0CCTL2 = OUTMOD_7;                      // CCR3 toggle/set
+	  TA0CCR2 = PWM_DEF_PERIOD;                             // CCR3 PWM duty cycle
 	  TA0CTL = TASSEL_2 | MC_1 | TACLR;         // SMCLK, up-down mode, clear TAR
 	}
 	else
@@ -74,8 +74,8 @@ void pwm_set(uint16_t pwmPeriod, uint16_t pwmDuty, uint8_t port){
 		if (port & PWM_CH0 )
 			TA0CCR1 = pwmDuty;                      // CCR1 PWM duty cycle
 		if (port & PWM_CH1)
-			TA0CCR3 = pwmDuty;                      // CCR3 PWM duty cycle
+			TA0CCR2 = pwmDuty;                      // CCR3 PWM duty cycle
 		if (port & PWM_CH2)
-			TA0CCR4 = pwmDuty;                      // CCR4 PWM duty cycle
+			TA0CCR3 = pwmDuty;                      // CCR4 PWM duty cycle
 
 }
