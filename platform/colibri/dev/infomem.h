@@ -56,7 +56,7 @@ Berlin, 2006
 #endif
 
 #define OPTIONS_BACKBONE_NODE	0x8000
-
+#define OPTIONS_NET_REPEATER    0x4000
 // Start at 0x0000
 typedef struct infomem_addresses_t {
 	uint32_t nodeId;					// @0x00
