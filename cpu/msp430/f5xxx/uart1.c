@@ -85,7 +85,7 @@ uart1_init(unsigned long ubr)
   /* UCA1MCTL |= UCBRS_2 + UCBRF_0;            // Modulation UCBRFx=0 */
   UCA1MCTL = UCBRS_3;             /* Modulation UCBRSx = 3 */
 
-#if defined (__MSP430F5308) || defined (__MSP430F5310)
+#if defined (__MSP430F5308) || defined (__MSP430F5310) || defined (__MSP430F5324)
   P4SEL |= BIT4|BIT5;  // P4.5 4.6 = USCI_A1 TXD/RXD
 #else
   P4DIR |= BIT5;
