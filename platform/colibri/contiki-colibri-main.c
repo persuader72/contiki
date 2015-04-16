@@ -119,28 +119,61 @@ static void lpm_uart_enter(void) {
 	UCA1IE &= ~UCTXIFG;
 }
 
+
+//#ifndef BOARD_REV
+//#define BOARD_REV -1
+//#endif
+
+
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
-#if COLIBRI_USE_DISPLAY //if display leave BTN1 as input
-	P1DIR &= ~ (BIT0);
+	//---------------------------- gestione porta 1 ---------------------------------
+#if BOARD_REV==0
+	P1DIR |= 0xF4;
+	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
+		P1DIR &= ~ (BIT0);
+		P1DIR &= ~ (BIT1);
+	#else
+		P1DIR |= (BIT0 | BIT1);  // if not display BTN1 as output
+	#endif
+	#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
+		P1DIR &= ~ (BIT3);
+	#else
+		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
+	#endif
 #else
-	P1DIR |= BIT0;  // if not display BTN1 as output
+	P1DIR |= 0xF6;//all other pin as output
 #endif
-#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
-	P1DIR &= ~ (BIT3);
-#else
-	P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
-#endif
-	P1DIR |= 0xF6;           //all other pin as output
+
+
+
+	//---------------------------- gestione porta 2 e 3 ---------------------------------
 
 	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
 	P3DIR = 0xFF;           //all output
+
+	//---------------------------- gestione porta 4 ---------------------------------
+#if BOARD_REV == 0
+	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
+	                         //gli altri bit sono settati a seconda della configurazione hardware
 #if COLIBRI_USE_BUTTON_SENSOR
 	P4DIR |= (BIT5 | BIT4); //uart line as output
 #else
-	P4DIR = 0xFF;           //all output changed if SENSORS_ENABLED
+	P4DIR &= ~BIT5;
+	P4DIR &= ~BIT4;
 #endif
+#if COLIBRI_HAS_BUTTONS//if buttons are present and board revision = 0
+	P4DIR &= ~ (BIT2);
+	P4DIR &= ~ (BIT1);
+#else
+	P4DIR |= (BIT2);
+	P4DIR |= (BIT1);
+#endif
+#else
+	P4DIR = 0xFF;
+#endif
+	//---------------------------- gestione altre porte ---------------------------------
 	P5DIR = 0xFF;           //all output
 	//P6DIR = ~ (BIT0);       //LBI input. RSSIO as output. Pin low when radio is sleeping
 	P6DIR = 0xFF;

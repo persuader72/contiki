@@ -183,4 +183,8 @@ typedef unsigned long off_t;
 #define LEDS_CONF_RED    BIT6 // green led
 #define LEDS_CONF_YELLOW BIT7 // yellow led
 
+#ifndef BOARD_REV
+#define BOARD_REV -1
+#endif
+
 #endif /* __PLATFORM_CONF_H__ */
