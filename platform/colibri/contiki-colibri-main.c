@@ -129,7 +129,7 @@ static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
 	//---------------------------- gestione porta 1 ---------------------------------
-#if BOARD_REV==0
+#if HW_TYPE==0
 	P1DIR |= 0xF4;
 	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
 		P1DIR &= ~ (BIT0);
@@ -154,7 +154,7 @@ static void lpm_msp430_enter(void) {
 	P3DIR = 0xFF;           //all output
 
 	//---------------------------- gestione porta 4 ---------------------------------
-#if BOARD_REV == 0
+#if HW_TYPE == 0
 	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
 	                         //gli altri bit sono settati a seconda della configurazione hardware
 #if COLIBRI_USE_BUTTON_SENSOR
@@ -175,8 +175,9 @@ static void lpm_msp430_enter(void) {
 #endif
 	//---------------------------- gestione altre porte ---------------------------------
 	P5DIR = 0xFF;           //all output
-	//P6DIR = ~ (BIT0);       //LBI input. RSSIO as output. Pin low when radio is sleeping
-	P6DIR = 0xFF;
+	//P6DIR = ~ (BIT0);
+
+	P6DIR = 0xFF;   //LBI output. RSSIO as output. Pin low when radio is sleeping
 	PJDIR = 0xFF;           //all output
 
 
