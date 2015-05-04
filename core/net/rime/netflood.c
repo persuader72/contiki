@@ -74,6 +74,9 @@ send(struct netflood_conn *c)
 static void
 recv_from_ipolite(struct ipolite_conn *ipolite, const rimeaddr_t *from)
 {
+    PRINTF("%d.%d: netflood recv_from_ipolite\n",
+	   rimeaddr_node_addr.u8[0], rimeaddr_node_addr.u8[1]);
+
   struct netflood_conn *c = (struct netflood_conn *)ipolite;
   struct netflood_hdr hdr;
   uint8_t hops;

@@ -98,6 +98,7 @@ packetbuf_copyfrom(const void *from, uint16_t len)
   l = len > PACKETBUF_SIZE? PACKETBUF_SIZE: len;
   memcpy(packetbufptr, from, l);
   buflen = l;
+  PRINTF("packetbuf_copyfrom: buflen: %d\n",buflen);
   return l;
 }
 /*---------------------------------------------------------------------------*/
@@ -171,6 +172,8 @@ packetbuf_copyto(void *to)
 int
 packetbuf_hdralloc(int size)
 {
+	PRINTF("packetbuf_hdralloc: hdrptr:%d packetbuf_totlen:%d size:%d PACKETBUF_SIZE:%d\n",
+			                    hdrptr,    packetbuf_totlen(),size,   PACKETBUF_SIZE);
   if(hdrptr >= size && packetbuf_totlen() + size <= PACKETBUF_SIZE) {
     hdrptr -= size;
     return 1;
@@ -250,6 +253,8 @@ packetbuf_hdrlen(void)
 uint16_t
 packetbuf_totlen(void)
 {
+	PRINTF("packetbuf_totlen: packetbuf_hdrlen: %d packetbuf_datalen %d\n",
+			packetbuf_hdrlen(), packetbuf_datalen());
   return packetbuf_hdrlen() + packetbuf_datalen();
 }
 /*---------------------------------------------------------------------------*/

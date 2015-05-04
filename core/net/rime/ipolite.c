@@ -107,6 +107,7 @@ send(void *ptr)
 	 c->q);
   
   if(c->q != NULL) {
+	  PRINTF("queued\n");
     queuebuf_to_packetbuf(c->q);
     queuebuf_free(c->q);
     c->q = NULL;
@@ -162,6 +163,8 @@ ipolite_send(struct ipolite_conn *c, clock_time_t interval, uint8_t hdrsize)
     }
 
   } else {
+	    PRINTF("%d.%d: ipolite_send: post timer to send\n",
+		   rimeaddr_node_addr.u8[0],rimeaddr_node_addr.u8[1]);
     c->q = queuebuf_new_from_packetbuf();
     if(c->q != NULL) {
       ctimer_set(&c->t,

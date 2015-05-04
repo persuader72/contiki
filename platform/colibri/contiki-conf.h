@@ -54,7 +54,7 @@
 #endif /* COLLECT_NEIGHBOR_CONF_MAX_COLLECT_NEIGHBORS */
 
 #ifndef QUEUEBUF_CONF_NUM
-#define QUEUEBUF_CONF_NUM                6
+#define QUEUEBUF_CONF_NUM                8
 #endif /* QUEUEBUF_CONF_NUM */
 
 #ifndef TIMESYNCH_CONF_ENABLED

@@ -177,7 +177,9 @@ int
 rime_output(struct channel *c)
 {
   RIMESTATS_ADD(tx);
+  PRINTF("rime_output\n");
   if(chameleon_create(c)) {
+	  PRINTF("chameleon_create ok\n");
     packetbuf_compact();
 
     NETSTACK_MAC.send(packet_sent, c);
