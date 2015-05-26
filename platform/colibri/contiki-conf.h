@@ -53,9 +53,15 @@
 #define COLLECT_NEIGHBOR_CONF_MAX_COLLECT_NEIGHBORS     2
 #endif /* COLLECT_NEIGHBOR_CONF_MAX_COLLECT_NEIGHBORS */
 
+#ifdef SERIAL_LINE_USB
+#ifndef QUEUEBUF_CONF_NUM
+#define QUEUEBUF_CONF_NUM                4
+#endif /* QUEUEBUF_CONF_NUM */
+#else
 #ifndef QUEUEBUF_CONF_NUM
 #define QUEUEBUF_CONF_NUM                8
 #endif /* QUEUEBUF_CONF_NUM */
+#endif
 
 #ifndef TIMESYNCH_CONF_ENABLED
 #define TIMESYNCH_CONF_ENABLED           0

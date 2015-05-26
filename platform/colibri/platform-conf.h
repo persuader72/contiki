@@ -100,8 +100,8 @@ typedef unsigned long off_t;
 #define AT25F512B_CS         1       /* P3.1 Output */
 #define AT25F512B_PORT(type) P3##type /* P3.1 Output */
 
-#define AT25F512B_SPI_ENABLE()  ( AT25F512B_PORT(OUT) &= ~BV(AT25F512B_CS) )
-#define AT25F512B_SPI_DISABLE() ( AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) )
+#define AT25F512B_SPI_ENABLE()  dint(); ( AT25F512B_PORT(OUT) &= ~BV(AT25F512B_CS) )
+#define AT25F512B_SPI_DISABLE() eint(); ( AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) )
 
 
 //
