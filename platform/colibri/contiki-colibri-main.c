@@ -119,17 +119,14 @@ static void lpm_uart_enter(void) {
 	UCA1IE &= ~UCTXIFG;
 }
 
+//#define HW_TYPE -1
 
-//#ifndef BOARD_REV
-//#define BOARD_REV -1
-//#endif
-
-
+//lpm_msp430_enter functions for board PN1240.00
+#if HW_TYPE==0
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
 	//---------------------------- gestione porta 1 ---------------------------------
-#if HW_TYPE==0
 	P1DIR |= 0xF4;
 	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
 		P1DIR &= ~ (BIT0);
@@ -142,9 +139,6 @@ static void lpm_msp430_enter(void) {
 	#else
 		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
 	#endif
-#else
-	P1DIR |= 0xF6;//all other pin as output
-#endif
 
 
 
@@ -154,7 +148,6 @@ static void lpm_msp430_enter(void) {
 	P3DIR = 0xFF;           //all output
 
 	//---------------------------- gestione porta 4 ---------------------------------
-#if HW_TYPE == 0
 	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
 	                         //gli altri bit sono settati a seconda della configurazione hardware
 #if COLIBRI_USE_BUTTON_SENSOR
@@ -170,9 +163,7 @@ static void lpm_msp430_enter(void) {
 	P4DIR |= (BIT2);
 	P4DIR |= (BIT1);
 #endif
-#else
-	P4DIR = 0xFF;
-#endif
+
 	//---------------------------- gestione altre porte ---------------------------------
 	P5DIR = 0xFF;           //all output
 	//P6DIR = ~ (BIT0);
@@ -197,6 +188,102 @@ static void lpm_msp430_enter(void) {
 	PJOUT = 0x00;
 
 }
+
+
+#elif HW_TYPE==1
+static void lpm_msp430_enter(void) {
+	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
+
+	//---------------------------- gestione porta 1 ---------------------------------
+	P1DIR |= 0xF4;
+	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
+		P1DIR &= ~ (BIT0);
+		P1DIR &= ~ (BIT1);
+	#else
+		P1DIR |= (BIT0 | BIT1);  // if not display BTN1 as output
+	#endif
+	#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
+		P1DIR &= ~ (BIT3);
+	#else
+		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
+	#endif
+
+
+
+
+	//---------------------------- gestione porta 2 e 3 ---------------------------------
+
+	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
+	P3DIR = 0xFF;           //all output
+
+	//---------------------------- gestione porta 4 ---------------------------------
+	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
+	                         //gli altri bit sono settati a seconda della configurazione hardware
+#if COLIBRI_USE_BUTTON_SENSOR
+	P4DIR |= (BIT5 | BIT4); //uart line as output
+#else
+	P4DIR &= ~BIT5;
+	P4DIR &= ~BIT4;
+#endif
+#if COLIBRI_HAS_BUTTONS//if buttons are present and board revision = 0
+	P4DIR &= ~ (BIT2);
+	P4DIR &= ~ (BIT1);
+#else
+	P4DIR |= (BIT2);
+	P4DIR |= (BIT1);
+#endif
+
+	//---------------------------- gestione altre porte ---------------------------------
+	P5DIR = 0xFF;           //all output
+	//P6DIR = ~ (BIT0);
+
+	P6DIR = 0xFF;   //LBI output. RSSIO as output. Pin low when radio is sleeping
+	PJDIR = 0xFF;           //all output
+
+	P1OUT = 0x00;
+	P2OUT = BIT5;
+	P3OUT = BIT2|BIT1;
+	P4OUT = 0x00;
+	P5OUT = 0x00;
+	P6OUT = 0x00;
+	PJOUT = 0x00;
+
+}
+
+#else
+static void lpm_msp430_enter(void) {
+	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
+
+	//---------------------------- gestione porta 1 ---------------------------------
+	P1DIR |= 0xF6;//all other pin as output
+
+	//---------------------------- gestione porta 2 e 3 ---------------------------------
+
+	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
+	P3DIR = 0xFF;           //all output
+
+	//---------------------------- gestione porta 4 ---------------------------------
+	P4DIR = 0xFF;
+	//---------------------------- gestione altre porte ---------------------------------
+	P5DIR = 0xFF;           //all output
+	//P6DIR = ~ (BIT0);
+
+	P6DIR = 0xFF;   //LBI output. RSSIO as output. Pin low when radio is sleeping
+	PJDIR = 0xFF;           //all output
+
+	P1OUT = 0x00;
+	P2OUT = BIT5;
+	P3OUT = BIT2|BIT1;
+	P4OUT = 0x00;
+	P5OUT = 0x00;
+	P6OUT = 0x00;
+	PJOUT = 0x00;
+
+}
+
+#endif
+
+
 
 static void lpm_uart_exit() {
 	P4SEL |= BIT4|BIT5;  	// P4.5 4.6 = USCI_A1 TXD/RXD
