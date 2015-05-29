@@ -119,10 +119,13 @@ static void lpm_uart_enter(void) {
 	UCA1IE &= ~UCTXIFG;
 }
 
-//#define HW_TYPE -1
 
+#define HW_TYPE 3
 //lpm_msp430_enter functions for board PN1240.00
 #if HW_TYPE==0
+void colibriPortInit(){
+
+}
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
@@ -191,6 +194,9 @@ static void lpm_msp430_enter(void) {
 
 
 #elif HW_TYPE==1
+void colibriPortInit(){
+  //TODO: verificare se serve qualche implementazione particolare
+}
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
@@ -249,7 +255,79 @@ static void lpm_msp430_enter(void) {
 	PJOUT = 0x00;
 
 }
+#elif HW_TYPE == 3
+void colibriPortInit(){
+	K_ACC_CSN_PORT(DIR) |= BV(K_ACC_CSN_PIN);
+	K_ACC_CSN_PORT(OUT) |= BV(K_ACC_CSN_PIN);
 
+	K_MAG_CSN_PORT(DIR) |= BV(K_MAG_CSN_PIN);
+	K_MAG_CSN_PORT(OUT) |= BV(K_MAG_CSN_PIN);
+
+
+	K_GYRO_CSN_PORT(DIR) |= BV(K_GYRO_CSN_PIN);
+	K_GYRO_CSN_PORT(OUT) |= BV(K_GYRO_CSN_PIN);
+
+	K_MEM_CSN_PORT(DIR) |= BV(K_MEM_CSN_PIN);
+	K_MEM_CSN_PORT(OUT) |= BV(K_MEM_CSN_PIN);
+}
+static void lpm_msp430_enter(void) {
+	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
+
+	//---------------------------- gestione porta 1 ---------------------------------
+	P1DIR |= 0xF4;
+	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
+		P1DIR &= ~ (BIT0);
+		P1DIR &= ~ (BIT1);
+	#else
+		P1DIR |= (BIT0 | BIT1);  // if not display BTN1 as output
+	#endif
+	#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
+		P1DIR &= ~ (BIT3);
+	#else
+		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
+	#endif
+
+
+
+
+	//---------------------------- gestione porta 2 e 3 ---------------------------------
+
+	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
+	P3DIR = 0xFF;           //all output
+
+	//---------------------------- gestione porta 4 ---------------------------------
+	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
+	                         //gli altri bit sono settati a seconda della configurazione hardware
+#if COLIBRI_USE_BUTTON_SENSOR
+	P4DIR |= (BIT5 | BIT4); //uart line as output
+#else
+	P4DIR &= ~BIT5;
+	P4DIR &= ~BIT4;
+#endif
+#if COLIBRI_HAS_BUTTONS//if buttons are present and board revision = 0
+	P4DIR &= ~ (BIT2);
+	P4DIR &= ~ (BIT1);
+#else
+	P4DIR |= (BIT2);
+	P4DIR |= (BIT1);
+#endif
+
+	//---------------------------- gestione altre porte ---------------------------------
+	P5DIR = 0xFF;           //all output
+	//P6DIR = ~ (BIT0);
+
+	P6DIR = 0xFF;   //LBI output. RSSIO as output. Pin low when radio is sleeping
+	PJDIR = 0xFF;           //all output
+
+	P1OUT = 0x00;
+	P2OUT = BIT5;
+	P3OUT = BIT2|BIT1;
+	P4OUT = 0x00;
+	P5OUT = 0x00;
+	P6OUT = 0x00;
+	PJOUT = 0x00;
+
+}
 #else
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
@@ -363,6 +441,8 @@ uint16_t getRandomIntegerFromVLO(void)
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
+
+	colibriPortInit();
 
 #ifdef SERIAL_LINE_USB
     msp_init();

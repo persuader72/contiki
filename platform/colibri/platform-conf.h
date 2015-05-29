@@ -1,6 +1,18 @@
 #ifndef __PLATFORM_CONF_H__
 #define __PLATFORM_CONF_H__
 
+//
+// HW_TYPE defines wich board configuration is used for colibri platform
+// HW_TYPE | CBL-PN  | description
+//---------+---------+-----------------------------------------------------
+//   0     | 0600.xx | basic colibri module. Based on MSP430F5310 with MRF49XA
+//   3     | 1240.03 | extended functionality rtls module. Complete with ACC, MAG, GYRO, 2 flash,
+//
+
+
+
+
+
 #define TMOTE_MYMOTE 1
 
 #define PROCESS_CONF_NO_PROCESS_NAMES 1
@@ -102,6 +114,35 @@ typedef unsigned long off_t;
 
 #define AT25F512B_SPI_ENABLE()  dint(); ( AT25F512B_PORT(OUT) &= ~BV(AT25F512B_CS) )
 #define AT25F512B_SPI_DISABLE() eint(); ( AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) )
+
+#if HW_TYPE == 3
+// P4.1 - Output: accelerometer cs
+#define K_ACC_CSN_PORT(type)      P5##type
+#define K_ACC_CSN_PIN             1
+
+// P1.0 - Output: magnetometer cs
+#define K_MAG_CSN_PORT(type)      P5##type
+#define K_MAG_CSN_PIN             0
+
+// P1.1 - Output: gyroscope cs
+#define K_GYRO_CSN_PORT(type)     P5##type
+#define K_GYRO_CSN_PIN            4
+
+#define K_MEM_CSN_PORT(type)      P5##type
+#define K_MEM_CSN_PIN             5
+
+#define K_ACC_SPI_ENABLE()     dint(); (K_ACC_CSN_PORT(OUT) &= ~BV(K_ACC_CSN_PIN)) // ENABLE CSn (active low)
+#define K_ACC_SPI_DISABLE()    (K_ACC_CSN_PORT(OUT) |=  BV(K_ACC_CSN_PIN))  // DISABLE CSn (active low)
+#define K_ACC_SPI_IS_ENABLED() eint(); ((K_ACC_CSN_PORT(OUT) & BV(K_ACC_CSN_PIN)) != BV(K_ACC_CSN_PIN))
+
+#define K_MAG_SPI_ENABLE()     dint(); (K_MAG_CSN_PORT(OUT) &= ~BV(K_MAG_CSN_PIN)) // ENABLE CSn (active low)
+#define K_MAG_SPI_DISABLE()    (K_MAG_CSN_PORT(OUT) |=  BV(K_MAG_CSN_PIN))  // DISABLE CSn (active low)
+#define K_MAG_SPI_IS_ENABLED() eint(); ((K_MAG_CSN_PORT(OUT) & BV(K_MAG_CSN_PIN)) != BV(K_MAG_CSN_PIN))
+
+#define K_GYRO_SPI_ENABLE()     dint(); (K_GYRO_CSN_PORT(OUT) &= ~BV(K_GYRO_CSN_PIN)) // ENABLE CSn (active low)
+#define K_GYRO_SPI_DISABLE()    (K_GYRO_CSN_PORT(OUT) |=  BV(K_GYRO_CSN_PIN))  // DISABLE CSn (active low)
+#define K_GYRO_SPI_IS_ENABLED() eint(); ((K_GYRO_CSN_PORT(OUT) & BV(K_GYRO_CSN_PIN)) != BV(K_GYRO_CSN_PIN)
+#endif
 
 
 //
