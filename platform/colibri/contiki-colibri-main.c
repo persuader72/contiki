@@ -120,7 +120,7 @@ static void lpm_uart_enter(void) {
 }
 
 
-#define HW_TYPE 3
+//#define HW_TYPE 3
 //lpm_msp430_enter functions for board PN1240.00
 #if HW_TYPE==0
 void colibriPortInit(){
@@ -257,12 +257,15 @@ static void lpm_msp430_enter(void) {
 }
 #elif HW_TYPE == 3
 void colibriPortInit(){
+
+	AT25F512B_PORT(DIR) |=  BV(AT25F512B_CS);
+    AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS);
+
 	K_ACC_CSN_PORT(DIR) |= BV(K_ACC_CSN_PIN);
 	K_ACC_CSN_PORT(OUT) |= BV(K_ACC_CSN_PIN);
 
 	K_MAG_CSN_PORT(DIR) |= BV(K_MAG_CSN_PIN);
 	K_MAG_CSN_PORT(OUT) |= BV(K_MAG_CSN_PIN);
-
 
 	K_GYRO_CSN_PORT(DIR) |= BV(K_GYRO_CSN_PIN);
 	K_GYRO_CSN_PORT(OUT) |= BV(K_GYRO_CSN_PIN);
@@ -329,6 +332,9 @@ static void lpm_msp430_enter(void) {
 
 }
 #else
+void colibriPortInit(){
+  //TODO: verificare se serve qualche implementazione particolare
+}
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 

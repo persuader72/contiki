@@ -132,16 +132,22 @@ typedef unsigned long off_t;
 #define K_MEM_CSN_PIN             5
 
 #define K_ACC_SPI_ENABLE()     dint(); (K_ACC_CSN_PORT(OUT) &= ~BV(K_ACC_CSN_PIN)) // ENABLE CSn (active low)
-#define K_ACC_SPI_DISABLE()    (K_ACC_CSN_PORT(OUT) |=  BV(K_ACC_CSN_PIN))  // DISABLE CSn (active low)
-#define K_ACC_SPI_IS_ENABLED() eint(); ((K_ACC_CSN_PORT(OUT) & BV(K_ACC_CSN_PIN)) != BV(K_ACC_CSN_PIN))
+#define K_ACC_SPI_DISABLE()    eint(); (K_ACC_CSN_PORT(OUT) |=  BV(K_ACC_CSN_PIN))  // DISABLE CSn (active low)
+#define K_ACC_SPI_IS_ENABLED() ((K_ACC_CSN_PORT(OUT) & BV(K_ACC_CSN_PIN)) != BV(K_ACC_CSN_PIN))
 
 #define K_MAG_SPI_ENABLE()     dint(); (K_MAG_CSN_PORT(OUT) &= ~BV(K_MAG_CSN_PIN)) // ENABLE CSn (active low)
-#define K_MAG_SPI_DISABLE()    (K_MAG_CSN_PORT(OUT) |=  BV(K_MAG_CSN_PIN))  // DISABLE CSn (active low)
-#define K_MAG_SPI_IS_ENABLED() eint(); ((K_MAG_CSN_PORT(OUT) & BV(K_MAG_CSN_PIN)) != BV(K_MAG_CSN_PIN))
+#define K_MAG_SPI_DISABLE()    eint(); (K_MAG_CSN_PORT(OUT) |=  BV(K_MAG_CSN_PIN))  // DISABLE CSn (active low)
+#define K_MAG_SPI_IS_ENABLED() ((K_MAG_CSN_PORT(OUT) & BV(K_MAG_CSN_PIN)) != BV(K_MAG_CSN_PIN))
 
 #define K_GYRO_SPI_ENABLE()     dint(); (K_GYRO_CSN_PORT(OUT) &= ~BV(K_GYRO_CSN_PIN)) // ENABLE CSn (active low)
-#define K_GYRO_SPI_DISABLE()    (K_GYRO_CSN_PORT(OUT) |=  BV(K_GYRO_CSN_PIN))  // DISABLE CSn (active low)
-#define K_GYRO_SPI_IS_ENABLED() eint(); ((K_GYRO_CSN_PORT(OUT) & BV(K_GYRO_CSN_PIN)) != BV(K_GYRO_CSN_PIN)
+#define K_GYRO_SPI_DISABLE()    eint(); (K_GYRO_CSN_PORT(OUT) |=  BV(K_GYRO_CSN_PIN))  // DISABLE CSn (active low)
+#define K_GYRO_SPI_IS_ENABLED() ((K_GYRO_CSN_PORT(OUT) & BV(K_GYRO_CSN_PIN)) != BV(K_GYRO_CSN_PIN)
+
+
+#define M25PE16_SPI_ENABLE()  dint();( K_MEM_CSN_PORT(OUT) &= ~BV(K_MEM_CSN_PIN) )
+#define M25PE16_SPI_DISABLE() eint();( K_MEM_CSN_PORT(OUT) |=  BV(K_MEM_CSN_PIN) )
+#define M25PE16_IS_ENABLED()  ((K_MEM_CSN_PORT(OUT) & BV(K_MEM_CSN_PIN)) != BV(K_MEM_CSN_PIN)
+
 #endif
 
 
