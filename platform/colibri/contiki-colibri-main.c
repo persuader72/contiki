@@ -16,6 +16,7 @@
 #include "node-id-colibri.h"
 
 #include <string.h>
+#include "dev/m25pe16.h"
 
 
 #ifdef SERIAL_LINE_USB
@@ -41,6 +42,9 @@
 #endif
 
 #define NODEID_RESTORE_RETRY 8
+
+//TODO: per highlight del codice da togliere!!
+//#define HW_TYPE 3
 
 //Indicates data has been received without an open rcv operation
 //volatile BYTE bCDCDataReceived_event = FALSE;
@@ -120,7 +124,7 @@ static void lpm_uart_enter(void) {
 }
 
 
-//#define HW_TYPE 3
+
 //lpm_msp430_enter functions for board PN1240.00
 #if HW_TYPE==0
 void colibriPortInit(){
@@ -272,62 +276,93 @@ void colibriPortInit(){
 
 	K_MEM_CSN_PORT(DIR) |= BV(K_MEM_CSN_PIN);
 	K_MEM_CSN_PORT(OUT) |= BV(K_MEM_CSN_PIN);
+
+	// pwm input of dcdc converter high -> max power
+	PWM_DCDC_PORT(DIR) |= BV(PWM_DCDC_PIN);
+	PWM_DCDC_PORT(OUT) |= BV(PWM_DCDC_PIN);
 }
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
 	//---------------------------- gestione porta 1 ---------------------------------
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	//                       | CH    | VEXT  | PWM   | MOTION| BNT   |
+	//      LED[0:2]         | CURR  | PRES  | LCD   | INT   | INT   |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
 	P1DIR |= 0xF4;
-	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
-		P1DIR &= ~ (BIT0);
-		P1DIR &= ~ (BIT1);
+	#if COLIBRI_HAS_BUTTONS
+		P1DIR &= ~ (BIT0);    // BTN_INT pin
 	#else
-		P1DIR |= (BIT0 | BIT1);  // if not display BTN1 as output
+		P1DIR |= BIT0 ;    // if not display BTN1 as output
 	#endif
+
+	#if COLIBRI_HAS_KINETIC
+		P1DIR &= ~ (BIT1);    // MOTION_INT pin
+	#else
+		P1DIR |= BIT1 ;    // if not display BTN1 as output
+	#endif
+
+
 	#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
 		P1DIR &= ~ (BIT3);
 	#else
 		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
 	#endif
 
-
-
-
 	//---------------------------- gestione porta 2 e 3 ---------------------------------
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	//  SPI  | RAD   | RAD   | RAD   | RAD   | INT   | INT   | INT   |
+	//  SCK  | IRQ   | FSK   | INT   | FINT  | ACC   | GYR   | MAG   |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
 
+#if COLIBRI_HAS_KINETIC
+	P2DIR = ~ (BIT6|BIT4|BIT2|BIT1|BIT0);  //IRQ, INT as input kinetic interrupt pin as inputs
+#else
 	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
+#endif
+
+	//---------------------------- gestione porta 3 ---------------------------------
 	P3DIR = 0xFF;           //all output
 
 	//---------------------------- gestione porta 4 ---------------------------------
-	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	//  RESET| BUSY  | SPARE | SPARE | BTN3  | BTN2  | BTN1  | BTN0  |
+	//  COG  | COG   |       |       |       |       |       |       |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+
+	P4DIR |= 0xF0;           //pin che posso mettere come output ce li metto.
 	                         //gli altri bit sono settati a seconda della configurazione hardware
-#if COLIBRI_USE_BUTTON_SENSOR
-	P4DIR |= (BIT5 | BIT4); //uart line as output
-#else
-	P4DIR &= ~BIT5;
-	P4DIR &= ~BIT4;
-#endif
 #if COLIBRI_HAS_BUTTONS//if buttons are present and board revision = 0
-	P4DIR &= ~ (BIT2);
-	P4DIR &= ~ (BIT1);
+	P4DIR &= ~ (BIT3|BIT2|BIT1|BIT0);
+
 #else
-	P4DIR |= (BIT2);
-	P4DIR |= (BIT1);
+	P4DIR |= (BIT3|BIT2|BIT1|BIT0);
 #endif
 
 	//---------------------------- gestione altre porte ---------------------------------
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	//       |       | CS    | CS    |       |       | CS    | CS    |
+	//       |       | FLASH2| GYR   |       |       | ACC   | MAG   |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
 	P5DIR = 0xFF;           //all output
-	//P6DIR = ~ (BIT0);
+
 
 	P6DIR = 0xFF;   //LBI output. RSSIO as output. Pin low when radio is sleeping
 	PJDIR = 0xFF;           //all output
 
+	leds_on(LEDS_BLUE);
+	leds_off(LEDS_BLUE);
+
 	P1OUT = 0x00;
 	P2OUT = BIT5;
-	P3OUT = BIT2|BIT1;
+	P3OUT = BIT2|BIT1;  //CS_FLASH + CS_RADIO
 	P4OUT = 0x00;
-	P5OUT = 0x00;
-	P6OUT = 0x00;
+	P5OUT = 0xFF;
+	P6OUT = BIT3;
 	PJOUT = 0x00;
 
 }
@@ -391,17 +426,40 @@ static void lpm_msp430_exit(void) {
 }
 
 static void lpm_enter(void) {
-	//leds_on(LEDS_BLUE);
-	//leds_off(LEDS_BLUE);
+	leds_on(LEDS_BLUE);
+	leds_off(LEDS_BLUE);
 	CLEAR_LPM_REQUEST(LPM_IS_ENABLED);
+#if HW_TYPE==3
+	m25pe16_DP(m25pe16b_DPon);
+#if COLIBRI_HAS_KINETIC
+	//kineticSleep(TRUE);
+#endif
+#else
 	lpm_uart_enter();
+#endif
+
 	lpm_msp430_enter();
+
+#if HW_TYPE==3
+	DCDC_LPM_ENTER;
+#endif
 }
 
 static void lpm_exit(void) {
 	CLEAR_LPM_REQUEST(LPM_IS_DISABLED);
+#if HW_TYPE==3
+	DCDC_LPM_EXIT;
+#endif
+
 	lpm_msp430_exit();
+#if HW_TYPE==3
+	m25pe16_DP(m25pe16b_DPoff);
+#if COLIBRI_HAS_KINETIC
+	//kineticSleep(TRUE);
+#endif
+#else
 	lpm_uart_exit();
+#endif
 }
 
 uint16_t getRandomIntegerFromVLO(void)

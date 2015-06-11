@@ -32,8 +32,10 @@ int xmem_pread(void *_p, int size, unsigned long offset) {
 	if(offset >= 0xFFFF00) at25f512_rdOTP(offset & 0xFF, _p, size);
 	else
 #if HW_TYPE==3
-		m25pe16_read(offset, _p, size);
+		if(size) //-1 is for protocol compatibilty with at52f512
+			m25pe16_read(offset, _p, size-1);
 #else
+
 		at52f512_read(offset,(uint8_t *)_p,size);
 #endif
 	return size;
@@ -41,10 +43,11 @@ int xmem_pread(void *_p, int size, unsigned long offset) {
 
 int xmem_pwrite(const void *_buf, int size, unsigned long addr) {
 	//printf("size wr:0x%.2x\n",size);
-	if(addr >= 0xFFFF00) at25f512_wrOTP(addr & 0xFF,(uint8_t *)_buf,size);
+	if(addr >= 0xFFFF00) at25f512_wrOTP(addr & 0xFF,(uint8_t *)_buf,size-1);
 	else
 #if HW_TYPE==3
-		m25pe16_write(addr,(uint8_t *)_buf,size);
+		if(size) //-1 is for protocol compatibilty with at52f512
+			m25pe16_write(addr,(uint8_t *)_buf,size);
 #else
 		at52f512_write(addr,(uint8_t *)_buf,size);
 #endif

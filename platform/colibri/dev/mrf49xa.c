@@ -754,7 +754,9 @@ static int on(void) {
 }
 /*---------------------------------------------------------------------------*/
 static int off(void) {
-	//leds_off(LEDS_BLUE);
+	printf("radio off\n");
+	leds_on(LEDS_BLUE);
+	leds_off(LEDS_BLUE);
 
 	adcOff();
 

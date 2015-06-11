@@ -148,6 +148,12 @@ typedef unsigned long off_t;
 #define M25PE16_SPI_DISABLE() eint();( K_MEM_CSN_PORT(OUT) |=  BV(K_MEM_CSN_PIN) )
 #define M25PE16_IS_ENABLED()  ((K_MEM_CSN_PORT(OUT) & BV(K_MEM_CSN_PIN)) != BV(K_MEM_CSN_PIN)
 
+#define PWM_DCDC_PORT(type)      P6##type
+#define PWM_DCDC_PIN             2
+
+#define DCDC_LPM_ENTER PWM_DCDC_PORT(OUT) &= ~ BV(PWM_DCDC_PIN)
+#define DCDC_LPM_EXIT  PWM_DCDC_PORT(OUT) |=   BV(PWM_DCDC_PIN)
+
 #endif
 
 

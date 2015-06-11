@@ -129,10 +129,11 @@ uint16_t get_adc(ADC_CH channel){
 }
 
 void adcOff(){
+
 #ifdef __MSP430_HAS_ADC10_A__
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
-	  ADC10CTL0 &= ~ADC10ON;                    // ADC OFF
+	  ADC10CTL0 &= ~ADC10ON;                   // ADC OFF
 	  //ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2
 #endif
 #ifdef __MSP430_HAS_ADC12_PLUS__
@@ -141,10 +142,13 @@ void adcOff(){
 	  ADC12CTL0 &= ~ADC12ON;                    // ADC OFF
 	  //ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2
 #endif
+	  printf("check refctl\n");
 	  // Configure internal reference
 	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
 	  REFCTL0 &= ~REFON;                       // Select internal ref = 2.5V
 												// Internal Reference ON
+	  printf("ADC off\n");
+
 }
 
 /*void adcOn(){
