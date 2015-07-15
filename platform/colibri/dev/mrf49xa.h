@@ -102,6 +102,7 @@ void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch);
 //void mrf49xa_setFifoRstReg(uint8_t value);
 uint16_t mrf49xa_readRssi();
 uint8_t mrf49xa_isReceiving(void);
+int mrf49xa_init(mrf49xa_baudRate baud, mrf49xa_oTxPwr pwr, mrf49xa_band band, uint8_t channel);
 
 #define TXDEN  0x80
 #define FIFOEN 0x40

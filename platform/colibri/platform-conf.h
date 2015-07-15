@@ -151,6 +151,9 @@ typedef unsigned long off_t;
 #define PWM_DCDC_PORT(type)      P6##type
 #define PWM_DCDC_PIN             2
 
+#define PWRON_DCDC_PORT(type)    P6##type
+#define PWRON_DCDC_PIN           3
+
 #define DCDC_LPM_ENTER PWM_DCDC_PORT(OUT) &= ~ BV(PWM_DCDC_PIN)
 #define DCDC_LPM_EXIT  PWM_DCDC_PORT(OUT) |=   BV(PWM_DCDC_PIN)
 

@@ -7,6 +7,7 @@
 #include <watchdog.h>
 #include <msp430.h>
 #include <stdint.h>
+#include "stdio.h"
 
 //#include "usb_printf.h"
 #include "dev/mrf49xa.h"
@@ -277,12 +278,32 @@ void colibriPortInit(){
 	K_MEM_CSN_PORT(DIR) |= BV(K_MEM_CSN_PIN);
 	K_MEM_CSN_PORT(OUT) |= BV(K_MEM_CSN_PIN);
 
+	PWRON_DCDC_PORT(OUT) |= BV(PWRON_DCDC_PIN);
+	PWRON_DCDC_PORT(DIR) |= BV(PWRON_DCDC_PIN);
+
 	// pwm input of dcdc converter high -> max power
-	PWM_DCDC_PORT(DIR) |= BV(PWM_DCDC_PIN);
 	PWM_DCDC_PORT(OUT) |= BV(PWM_DCDC_PIN);
+	PWM_DCDC_PORT(DIR) |= BV(PWM_DCDC_PIN);
+
 }
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
+	TA1CTL  |= ID_3;
+	TA1EX0 |= TAIDEX_7;
+
+	// Disable VUSB LDO and SLDO
+	USBKEYPID   =     0x9628;           // set USB KEYandPID to 0x9628
+										// access to USB config registers enabled
+	USBPWRCTL &= ~(SLDOEN+VUSBEN);      // Disable the VUSB LDO and the SLDO
+	USBKEYPID   =    0x9600;            // access to USB config registers disabled
+
+	// Disable SVS
+	PMMCTL0_H = PMMPW_H;                // PMM Password
+	SVSMHCTL &= ~(SVMHE+SVSHE);         // Disable High side SVS
+	SVSMLCTL &= ~(SVMLE+SVSLE);         // Disable Low side SVS
+
+	XT2_Stop();
+
 
 	//---------------------------- gestione porta 1 ---------------------------------
 	//    7      6       5       4       3       2      1       0
@@ -290,7 +311,7 @@ static void lpm_msp430_enter(void) {
 	//                       | CH    | VEXT  | PWM   | MOTION| BNT   |
 	//      LED[0:2]         | CURR  | PRES  | LCD   | INT   | INT   |
 	//-------+-------+-------+-------+-------+-------+-------+-------+
-	P1DIR |= 0xF4;
+	P1DIR = 0xF4;
 	#if COLIBRI_HAS_BUTTONS
 		P1DIR &= ~ (BIT0);    // BTN_INT pin
 	#else
@@ -303,12 +324,12 @@ static void lpm_msp430_enter(void) {
 		P1DIR |= BIT1 ;    // if not display BTN1 as output
 	#endif
 
-
+/*
 	#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
 		P1DIR &= ~ (BIT3);
 	#else
 		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
-	#endif
+	#endif*/
 
 	//---------------------------- gestione porta 2 e 3 ---------------------------------
 	//    7      6       5       4       3       2      1       0
@@ -318,7 +339,7 @@ static void lpm_msp430_enter(void) {
 	//-------+-------+-------+-------+-------+-------+-------+-------+
 
 #if COLIBRI_HAS_KINETIC
-	P2DIR = ~ (BIT6|BIT4|BIT2|BIT1|BIT0);  //IRQ, INT as input kinetic interrupt pin as inputs
+	P2DIR = ~ (BIT6|BIT4|BIT2|BIT1|BIT0);//IRQ, INT as input kinetic interrupt pin as inputs
 #else
 	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
 #endif
@@ -349,20 +370,17 @@ static void lpm_msp430_enter(void) {
 	//       |       | FLASH2| GYR   |       |       | ACC   | MAG   |
 	//-------+-------+-------+-------+-------+-------+-------+-------+
 	P5DIR = 0xFF;           //all output
-
-
-	P6DIR = 0xFF;   //LBI output. RSSIO as output. Pin low when radio is sleeping
+	P6DIR = 0xFE;   //LBI input. RSSIO as output. Pin low when radio is sleeping
 	PJDIR = 0xFF;           //all output
 
-	leds_on(LEDS_BLUE);
-	leds_off(LEDS_BLUE);
+
 
 	P1OUT = 0x00;
 	P2OUT = BIT5;
 	P3OUT = BIT2|BIT1;  //CS_FLASH + CS_RADIO
 	P4OUT = 0x00;
 	P5OUT = 0xFF;
-	P6OUT = BIT3;
+	P6OUT = BIT3 | BIT2;
 	PJOUT = 0x00;
 
 }
@@ -426,23 +444,20 @@ static void lpm_msp430_exit(void) {
 }
 
 static void lpm_enter(void) {
-	leds_on(LEDS_BLUE);
-	leds_off(LEDS_BLUE);
+	PRINTF("lpm_enter\n");
 	CLEAR_LPM_REQUEST(LPM_IS_ENABLED);
 #if HW_TYPE==3
-	m25pe16_DP(m25pe16b_DPon);
-#if COLIBRI_HAS_KINETIC
-	//kineticSleep(TRUE);
-#endif
+
 #else
 	lpm_uart_enter();
 #endif
 
 	lpm_msp430_enter();
-
 #if HW_TYPE==3
 	DCDC_LPM_ENTER;
 #endif
+
+
 }
 
 static void lpm_exit(void) {
@@ -502,6 +517,7 @@ uint16_t getRandomIntegerFromVLO(void)
   return result;
 }
 
+
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
@@ -543,9 +559,17 @@ int main(void) {
     set_rime_addr();
 #ifdef USE_MRF49XA
     {
-		uint8_t baud = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
-		uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
-		mrf49xa_init(baud,txpwr,INFOMEM_STRUCT_A->radio.band,INFOMEM_STRUCT_A->radio.channel);
+#ifdef RADIO_CRC_ENABLED
+    	if(crcCheck((uint8_t *)&INFOMEM_STRUCT_A->radio),sizeof(INFOMEM_STRUCT_A->radio)){
+#endif
+			uint8_t baud  = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
+			uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
+			mrf49xa_init(baud,txpwr,INFOMEM_STRUCT_A->radio.band,INFOMEM_STRUCT_A->radio.channel);
+#ifdef RADIO_CRC_ENABLED
+    	}else{
+    		mrf49xa_init(MRF49XA_57600, MRF49XA_TXPWR_0DB, MRF49XA_DEF_BAND, MRF49XA_DEF_CHANNEL);
+    	}
+#endif
     }
 #endif
 	//to avoid errata read from flash that sometimes occour at powerup (tapullo)
@@ -589,8 +613,22 @@ int main(void) {
 #ifdef SERIAL_LINE_USB
         if(process_nevents() != 0 /*|| uart1_active()*/) {
         } else {
+#if HW_TYPE==3
+		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
+		watchdog_stop();
+		if(lpm_active()){
+			leds_on(LEDS_BLUE);
+			leds_off(LEDS_BLUE);
+			leds_on(LEDS_BLUE);
+			leds_off(LEDS_BLUE);
+		}
+		(lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
+		watchdog_start();
+		if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
+#else
             watchdog_stop();
             watchdog_start();
+#endif
         }
 #else
         int s = splhigh();		/* Disable interrupts. */
@@ -599,7 +637,7 @@ int main(void) {
         } else {
         	if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
             watchdog_stop();
-            (lpm_active()) ? __bis_SR_register(GIE | LPM3_bits) : __bis_SR_register(GIE | LPM0_bits) ;
+            (lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
             watchdog_start();
             if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
         }

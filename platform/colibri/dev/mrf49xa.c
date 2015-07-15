@@ -754,9 +754,7 @@ static int on(void) {
 }
 /*---------------------------------------------------------------------------*/
 static int off(void) {
-	printf("radio off\n");
-	leds_on(LEDS_BLUE);
-	leds_off(LEDS_BLUE);
+	PRINTF("radio off\n");
 
 	adcOff();
 
@@ -764,6 +762,9 @@ static int off(void) {
 	SPI_WRITE(0xB9);
 	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
 
+	//uint16_t reg;
+	//readSR(&reg);
+    //setReg(MRF49XA_GENCREG,   0);    //RegisterSet(GENCREG | 0x0040 );
     setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 	setReg(MRF49XA_PMCREG,     0x0);
 	//clock_wait(30);

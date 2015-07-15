@@ -6,6 +6,13 @@
 #include "adc.h"
 #include "utils.h"
 
+#define DEBUG 0
+#if DEBUG
+#define PRINTF(...) printf(__VA_ARGS__)
+#else
+#define PRINTF(...) do {} while (0)
+#endif
+
 static uint8_t adcStatus;
 
 uint8_t getAdcStatus(){
@@ -14,6 +21,7 @@ uint8_t getAdcStatus(){
 
 void adc_init(void)
 {
+	PRINTF("adc_init: REFCTL0 %.4x\n",REFCTL0);              // If ref generator busy, WAIT
 #ifdef __MSP430_HAS_ADC10_A__
 	  //WDTCTL = WDTPW | WDTHOLD;                 // Stop WDT
 
@@ -30,10 +38,9 @@ void adc_init(void)
 	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
 	  ADC12CTL0 = ADC12SHT01 | ADC12ON;         // 16 ADC10CLKs; ADC ON
 	  ADC12CTL1 = ADC12SHP | ADC12CONSEQ_0;     // s/w trig, single ch/conv
-	  ADC12CTL2 = ADC12RES_1;                   // 10-bit conversion results (for compatibility with ADC10)
+	  ADC12CTL2 = ADC12RES_1 | ADC12REFBURST;                   // 10-bit conversion results (for compatibility with ADC10)
 	  ADC12MCTL0 = ADC12SREF_1 | ADC12INCH_10;  // AVcc/2
 #endif
-
 
 	  // Configure internal reference
 	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
@@ -41,6 +48,7 @@ void adc_init(void)
 	                                            // Internal Reference ON
 	  clock_delay(600);                         // Delay (~75us) for Ref to settle
 	  adcStatus = 0;
+	  PRINTF("end of adc_init: REFCTL0 %.4x\n",REFCTL0);              // If ref generator busy, WAIT
 }
 
 // start  adc a bassa priorità
@@ -129,7 +137,7 @@ uint16_t get_adc(ADC_CH channel){
 }
 
 void adcOff(){
-
+	  PRINTF("adcOff: REFCTL0 %.4x\n",REFCTL0);              // If ref generator busy, WAIT
 #ifdef __MSP430_HAS_ADC10_A__
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
@@ -139,15 +147,18 @@ void adcOff(){
 #ifdef __MSP430_HAS_ADC12_PLUS__
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC12 - Pulse sample mode; ADC10SC trigger
+	  ADC12CTL0 &= ~ADC12ENC;
+	  ADC12CTL0 &= ~ADC12REFON;
 	  ADC12CTL0 &= ~ADC12ON;                    // ADC OFF
 	  //ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2
 #endif
-	  printf("check refctl\n");
+
+	  PRINTF("check refctl %.4x\n",REFCTL0);              // If ref generator busy, WAIT
 	  // Configure internal reference
-	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
+	  while(REFCTL0 & REFGENBUSY);
 	  REFCTL0 &= ~REFON;                       // Select internal ref = 2.5V
 												// Internal Reference ON
-	  printf("ADC off\n");
+	  PRINTF("ADC now is off\n");
 
 }
 
