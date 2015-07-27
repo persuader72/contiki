@@ -435,6 +435,7 @@ uint8_t crcCheck(uint8_t *buff, uint8_t len){
 	CRCDI = len;
 	for (i=0;i<len-2;i++)
 		CRCDI = buff[i];
+	//printf("crcExp 0x%.4x CRCINIRES 0x%.4x\n",crcExp,CRCINIRES);
 
 	return !(crcExp ^ CRCINIRES);
 

@@ -102,6 +102,9 @@ typedef struct infomem_radio_t {
 	uint8_t channel;					// @0x13
 	uint8_t band;						// @0x14
 	uint8_t padding;					// @0x15
+#ifdef RADIO_CRC_ENABLED
+	uint16_t crc;
+#endif
 }infomem_radio;							// Size: 0x06
 
 typedef enum pinMode_t{
@@ -124,7 +127,10 @@ typedef struct infomem_pwm_t{
 typedef struct infomem_a_t {
 	infomem_addresses addresses;
 	infomem_radio radio;
+#ifndef RADIO_CRC_ENABLED
+	//never used leaved for memory padding back compatibility
 	infomem_ioMode GpioMode;
+#endif
 	infomem_pwm pwmSets;
 
 }infomem_a;

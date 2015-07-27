@@ -517,6 +517,21 @@ uint16_t getRandomIntegerFromVLO(void)
   return result;
 }
 
+#if DEBUG
+uint16_t crcCalc(uint8_t *buff, uint8_t len){
+	uint8_t i=0;
+	//uint16_t crcExp = (buff[len-2] << 8) | buff[len-1];
+	CRCINIRES = 0xFFFF;
+	CRCDI = len;
+	for (i=0;i<len-2;i++)
+		CRCDI = buff[i];
+
+	return CRCINIRES;
+
+
+}
+#endif
+
 
 int main(void) {
 	msp430_cpu_init();
@@ -560,13 +575,16 @@ int main(void) {
 #ifdef USE_MRF49XA
     {
 #ifdef RADIO_CRC_ENABLED
-    	if(crcCheck((uint8_t *)&INFOMEM_STRUCT_A->radio),sizeof(INFOMEM_STRUCT_A->radio)){
+    	PRINTF("crc expected: %.4x\n",crcCalc((uint8_t *)&INFOMEM_STRUCT_A->radio,sizeof(INFOMEM_STRUCT_A->radio)));
+    	if(crcCheck((uint8_t *)&INFOMEM_STRUCT_A->radio,sizeof(INFOMEM_STRUCT_A->radio))){
+    		PRINTF("infomem radio settings crc ok\n");
 #endif
 			uint8_t baud  = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
 			uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
 			mrf49xa_init(baud,txpwr,INFOMEM_STRUCT_A->radio.band,INFOMEM_STRUCT_A->radio.channel);
 #ifdef RADIO_CRC_ENABLED
     	}else{
+    		PRINTF("infomem radio settings crc FAIL\n");
     		mrf49xa_init(MRF49XA_57600, MRF49XA_TXPWR_0DB, MRF49XA_DEF_BAND, MRF49XA_DEF_CHANNEL);
     	}
 #endif
