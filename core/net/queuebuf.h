@@ -108,6 +108,41 @@ packetbuf_attr_t queuebuf_attr(struct queuebuf *b, uint8_t type);
 
 void queuebuf_debug_print(void);
 
+/* Structure pointing to a buffer either stored
+   in RAM or swapped in CFS */
+struct queuebuf {
+#if QUEUEBUF_DEBUG
+  struct queuebuf *next;
+  const char *file;
+  int line;
+  clock_time_t time;
+#endif /* QUEUEBUF_DEBUG */
+#if WITH_SWAP
+  enum {IN_RAM, IN_CFS} location;
+  union {
+#endif
+    struct queuebuf_data *ram_ptr;
+#if WITH_SWAP
+    int swap_id;
+  };
+#endif
+};
+
+/* The actual queuebuf data */
+typedef struct queuebuf_data {
+  uint16_t len;
+  uint8_t data[PACKETBUF_SIZE];
+  struct packetbuf_attr attrs[PACKETBUF_NUM_ATTRS];
+  struct packetbuf_addr addrs[PACKETBUF_NUM_ADDRS];
+}queuebuf_data_t;
+
+struct queuebuf_ref {
+  uint16_t len;
+  uint8_t *ref;
+  uint8_t hdr[PACKETBUF_HDR_SIZE];
+  uint8_t hdrlen;
+};
+
 #endif /* __QUEUEBUF_H__ */
 
 /** @} */

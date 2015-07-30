@@ -144,7 +144,7 @@ void readSR(uint16_t *value);
 
 #define MRF49XA_WRITE_REG(adr,data)                           \
   do {                                                       \
-	PRINTF("write reg: 0x%x\t@: 0x%x\n",adr,data);\
+	/*PRINTF("write reg: 0x%x\t@: 0x%x\n",adr,data);*/\
     adr = adr | (data >>8);                                \
 	SPI_WAITFORTx_BEFORE();                                \
     MRF49XA_SPI_ENABLE();                                    \

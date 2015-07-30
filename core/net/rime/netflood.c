@@ -54,12 +54,19 @@ struct netflood_hdr {
   uint16_t hops;
 };
 
+#ifndef NETFLOOD_MAX_DUPS
+#define NETFLOOD_MAX_DUPS 1
+#endif
+
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
+#include "utils.h"
 #define PRINTF(...) printf(__VA_ARGS__)
+#define DUMP(...) dump(__VA_ARGS__)
 #else
 #define PRINTF(...)
+#define DUMP(...)
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -150,7 +157,7 @@ void
 netflood_open(struct netflood_conn *c, clock_time_t queue_time,
 	uint16_t channel, const struct netflood_callbacks *u)
 {
-  ipolite_open(&c->c, channel, 1, &netflood);
+  ipolite_open(&c->c, channel, NETFLOOD_MAX_DUPS, &netflood);
   c->u = u;
   c->queue_time = queue_time;
 }

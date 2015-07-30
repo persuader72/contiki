@@ -56,12 +56,18 @@
 #define MIN(a, b) ((a) < (b)? (a) : (b))
 #endif /* MIN */
 
-#define DEBUG 0
+#include "queuebuf.h"
+
+#define DEBUG 1
 #if DEBUG
 #include <stdio.h>
+#include "utils.h"
 #define PRINTF(...) printf(__VA_ARGS__)
+//#define DUMP(...) dump(__VA_ARGS__)
+#define DUMP(...)
 #else
 #define PRINTF(...)
+#define DUMP(...)
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -69,6 +75,11 @@ static void
 recv(struct broadcast_conn *broadcast, const rimeaddr_t *from)
 {
   struct ipolite_conn *c = (struct ipolite_conn *)broadcast;
+  PRINTF("ipolite recv\n");
+  DUMP(packetbuf_dataptr(),packetbuf_datalen());
+  if(c->q != NULL )
+	  DUMP(c->q->ram_ptr,sizeof(struct queuebuf_data));
+
   if(c->q != NULL &&
      packetbuf_datalen() == queuebuf_datalen(c->q) &&
      memcmp(packetbuf_dataptr(), queuebuf_dataptr(c->q),
@@ -77,6 +88,7 @@ recv(struct broadcast_conn *broadcast, const rimeaddr_t *from)
        duplicate counter. If it reaches its maximum, do not send out
        our packet. */
     c->dups++;
+	PRINTF("is the copy %d of %d\n",c->dups,c->maxdups);
     if(c->dups == c->maxdups) {
       queuebuf_free(c->q);
       c->q = NULL;
@@ -102,12 +114,12 @@ send(void *ptr)
 {
   struct ipolite_conn *c = ptr;
   
-  PRINTF("%d.%d: ipolite: send queuebuf %p\n",
+  PRINTF("%d.%d: ipolite: send queuebuf %p",
 	 rimeaddr_node_addr.u8[0],rimeaddr_node_addr.u8[1],
 	 c->q);
   
   if(c->q != NULL) {
-	  PRINTF("queued\n");
+	  PRINTF(" queued");
     queuebuf_to_packetbuf(c->q);
     queuebuf_free(c->q);
     c->q = NULL;
@@ -116,6 +128,7 @@ send(void *ptr)
       c->cb->sent(c);
     }
   }
+  PRINTF("\n");
 }
 /*---------------------------------------------------------------------------*/
 static const struct broadcast_callbacks broadcast = { recv, sent };
@@ -149,6 +162,8 @@ ipolite_send(struct ipolite_conn *c, clock_time_t interval, uint8_t hdrsize)
     PRINTF("%d.%d: ipolite_send: cancel old send\n",
 	   rimeaddr_node_addr.u8[0],rimeaddr_node_addr.u8[1]);
     queuebuf_free(c->q);
+    c->q = NULL;
+    ctimer_stop(&c->t);
   }
   c->dups = 0;
   c->hdrsize = hdrsize;

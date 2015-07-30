@@ -14,10 +14,12 @@
 
 #define DEBUG 0
 #if DEBUG
-//#include <stdio.h>
+#include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
+#define DUMP(...) dump(__VA_ARGS__)
 #else
 #define PRINTF(...) do {} while (0)
+#define DUMP(...)
 #endif
 
 void mrf49xa_arch_init(void);
@@ -460,14 +462,16 @@ PROCESS_THREAD(mrf49xa_process, ev, data) {
 
 		PRINTF("mrf49xa_process: EVENT_POLL\n");
 		if (crcCheck(mrf49xabuf,last_packet_len)){
-
+			DUMP(0x1f10,32);
 			packetbuf_clear();
 			packetbuf_set_attr(PACKETBUF_ATTR_TIMESTAMP, last_packet_timestamp);
-			memset(packetbuf_dataptr(),0,PACKETBUF_SIZE + PACKETBUF_HDR_SIZE);
+			//memset(packetbuf_dataptr(),0,PACKETBUF_SIZE + PACKETBUF_HDR_SIZE);
+			memset(packetbuf_dataptr(),0,PACKETBUF_SIZE);
+			DUMP(0x1f10,32);
 			memcpy(packetbuf_dataptr(),mrf49xabuf,last_packet_len-2);
-
 			packetbuf_set_datalen(last_packet_len-2);
 			PRINTF("recv len: %d\n",last_packet_len-2);
+
 #if 0
 			int i;
 			for(i=0;i<last_packet_len;i++){

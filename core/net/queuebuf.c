@@ -48,6 +48,7 @@
 #endif
 
 #include <string.h> /* for memcpy() */
+#include "queuebuf.h"
 
 #ifdef QUEUEBUF_CONF_REF_NUM
 #define QUEUEBUF_REF_NUM QUEUEBUF_CONF_REF_NUM
@@ -57,13 +58,14 @@
 
 /* Structure pointing to a buffer either stored
    in RAM or swapped in CFS */
+/*
 struct queuebuf {
 #if QUEUEBUF_DEBUG
   struct queuebuf *next;
   const char *file;
   int line;
   clock_time_t time;
-#endif /* QUEUEBUF_DEBUG */
+#endif // QUEUEBUF_DEBUG
 #if WITH_SWAP
   enum {IN_RAM, IN_CFS} location;
   union {
@@ -73,9 +75,10 @@ struct queuebuf {
     int swap_id;
   };
 #endif
-};
+};*/
 
 /* The actual queuebuf data */
+/*
 struct queuebuf_data {
   uint16_t len;
   uint8_t data[PACKETBUF_SIZE];
@@ -88,7 +91,7 @@ struct queuebuf_ref {
   uint8_t *ref;
   uint8_t hdr[PACKETBUF_HDR_SIZE];
   uint8_t hdrlen;
-};
+};*/
 
 MEMB(bufmem, struct queuebuf, QUEUEBUF_NUM);
 MEMB(refbufmem, struct queuebuf_ref, QUEUEBUF_REF_NUM);
@@ -132,9 +135,12 @@ LIST(queuebuf_list);
 #define DEBUG 0
 #if DEBUG
 #include <stdio.h>
+#include "utils.h"
 #define PRINTF(...) printf(__VA_ARGS__)
+#define DUMP(...) dump(__VA_ARGS__)
 #else
 #define PRINTF(...)
+#define DUMP(...)
 #endif
 
 #ifdef QUEUEBUF_CONF_STATS
@@ -363,6 +369,8 @@ queuebuf_new_from_packetbuf(void)
 
       buframptr->len = packetbuf_copyto(buframptr->data);
       packetbuf_attr_copyto(buframptr->attrs, buframptr->addrs);
+      PRINTF("queuebuf_new_from_packetbuf len %.4x\n",buframptr->len );
+      DUMP(buframptr,sizeof(struct queuebuf_data));
 
 #if WITH_SWAP
       if(buf->location == IN_CFS) {
