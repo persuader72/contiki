@@ -30,7 +30,7 @@
 #include <dev/uart1.h>
 #endif
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #define PRINTF(...) printf(__VA_ARGS__)
 #else
@@ -45,7 +45,7 @@
 #define NODEID_RESTORE_RETRY 8
 
 //TODO: per highlight del codice da togliere!!
-//#define HW_TYPE 3
+#define HW_TYPE 3
 
 //Indicates data has been received without an open rcv operation
 //volatile BYTE bCDCDataReceived_event = FALSE;
@@ -288,21 +288,8 @@ void colibriPortInit(){
 }
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
-	TA1CTL  |= ID_3;
-	TA1EX0 |= TAIDEX_7;
-
-	// Disable VUSB LDO and SLDO
-	USBKEYPID   =     0x9628;           // set USB KEYandPID to 0x9628
-										// access to USB config registers enabled
-	USBPWRCTL &= ~(SLDOEN+VUSBEN);      // Disable the VUSB LDO and the SLDO
-	USBKEYPID   =    0x9600;            // access to USB config registers disabled
-
-	// Disable SVS
-	PMMCTL0_H = PMMPW_H;                // PMM Password
-	SVSMHCTL &= ~(SVMHE+SVSHE);         // Disable High side SVS
-	SVSMLCTL &= ~(SVMLE+SVSLE);         // Disable Low side SVS
-
-	XT2_Stop();
+	TA1CTL  |= ID_3;    //input clock divide by 8
+	TA1EX0 |= TAIDEX_7; //input clock divide by 8
 
 
 	//---------------------------- gestione porta 1 ---------------------------------
@@ -345,7 +332,7 @@ static void lpm_msp430_enter(void) {
 #endif
 
 	//---------------------------- gestione porta 3 ---------------------------------
-	P3DIR = 0xFF;           //all output
+	P3DIR = 0xEF;           //all output
 
 	//---------------------------- gestione porta 4 ---------------------------------
 	//    7      6       5       4       3       2      1       0
@@ -382,6 +369,19 @@ static void lpm_msp430_enter(void) {
 	P5OUT = 0xFF;
 	P6OUT = BIT3 | BIT2;
 	PJOUT = 0x00;
+
+
+	// Disable VUSB LDO and SLDO
+	USBKEYPID   =     0x9628;           // set USB KEYandPID to 0x9628
+										// access to USB config registers enabled
+	USBPWRCTL &= ~(SLDOEN+VUSBEN);      // Disable the VUSB LDO and the SLDO
+	USBKEYPID   =    0x9600;            // access to USB config registers disabled
+	// Disable SVS
+	PMMCTL0_H = PMMPW_H;                // PMM Password
+	SVSMHCTL &= ~(SVMHE+SVSHE);         // Disable High side SVS
+	SVSMLCTL &= ~(SVMLE+SVSLE);         // Disable Low side SVS
+
+	XT2_Stop();
 
 }
 #else
@@ -434,6 +434,8 @@ static void lpm_uart_exit() {
 
 static void lpm_msp430_exit(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
+	TA1CTL &= ~ID_3;     //input clock divide by 1
+	TA1EX0 &= ~TAIDEX_7; //input clock divide by 1
 
 	P6DIR &= ~ (BIT7|BIT0);       //RSSIO as input + LBI as input
 #ifdef SENSORS_ENABLED
@@ -530,14 +532,14 @@ uint16_t crcCalc(uint8_t *buff, uint8_t len){
 
 
 }
+
 #endif
-
-
 int main(void) {
 	msp430_cpu_init();
 	leds_init();
 
 	colibriPortInit();
+
 
 #ifdef SERIAL_LINE_USB
     msp_init();
@@ -628,18 +630,14 @@ int main(void) {
           watchdog_periodic();
           r = process_run();
         } while(r > 0);
+        int s = splhigh();		/* Disable interrupts. */
 #ifdef SERIAL_LINE_USB
         if(process_nevents() != 0 /*|| uart1_active()*/) {
+        	splx(s);			/* Re-enable interrupts. */
         } else {
 #if HW_TYPE==3
-		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
+		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) 	lpm_enter();
 		watchdog_stop();
-		if(lpm_active()){
-			leds_on(LEDS_BLUE);
-			leds_off(LEDS_BLUE);
-			leds_on(LEDS_BLUE);
-			leds_off(LEDS_BLUE);
-		}
 		(lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
 		watchdog_start();
 		if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
@@ -649,7 +647,6 @@ int main(void) {
 #endif
         }
 #else
-        int s = splhigh();		/* Disable interrupts. */
         if(process_nevents() != 0 || uart1_active()) {
         	splx(s);			/* Re-enable interrupts. */
         } else {

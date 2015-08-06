@@ -727,8 +727,8 @@ static int on(void) {
 	MRF49XA_CLEAR_FIFOP_INT();
 	MRF49XA_ENABLE_FIFOP_INT();
 
-	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
-	P2SEL |= BIT7;                            // P2.7 option select
+	/*P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
+	P2SEL |= BIT7;                            // P2.7 option select*/
 	P2IFG = 0;
 
 	/* XXX Clear pending interrupts before enable */
@@ -769,16 +769,16 @@ static int off(void) {
 
 	//uint16_t reg;
 	//readSR(&reg);
-    //setReg(MRF49XA_GENCREG,   0);    //RegisterSet(GENCREG | 0x0040 );
-    setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
+    setReg(MRF49XA_GENCREG,   0);    //RegisterSet(GENCREG | 0x0040 );
+    //setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 	setReg(MRF49XA_PMCREG,     0x0);
 	//clock_wait(30);
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
-	P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
+	/*P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
 	P2SEL &= ~BIT7;
 	// P2.7 option select
 	P3DIR |= BIT3; P3OUT &= ~BIT3;
-	P2DIR |= BIT7; P2OUT &= ~BIT7;
+	P2DIR |= BIT7; P2OUT &= ~BIT7;*/
 	//P3DIR &= ~BIT4;
 	return 0;
 }
