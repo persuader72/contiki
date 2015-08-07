@@ -58,7 +58,7 @@
 
 #include "queuebuf.h"
 
-#define DEBUG 1
+#define DEBUG 0
 #if DEBUG
 #include <stdio.h>
 #include "utils.h"

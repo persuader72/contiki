@@ -45,7 +45,7 @@
 #define NODEID_RESTORE_RETRY 8
 
 //TODO: per highlight del codice da togliere!!
-#define HW_TYPE 3
+//#define HW_TYPE 3
 
 //Indicates data has been received without an open rcv operation
 //volatile BYTE bCDCDataReceived_event = FALSE;
@@ -115,6 +115,8 @@ void msp_init(void) {
 }
 #endif
 
+#ifndef SERIAL_LINE_USB
+#if CAN_GO_TO_SLEEP
 static void lpm_uart_enter(void) {
 	/* RS232 */
 	UCA1CTL1 |= UCSWRST;            /* Hold peripheral in reset state */
@@ -123,7 +125,8 @@ static void lpm_uart_enter(void) {
 	UCA1IE &= ~UCRXIFG;
 	UCA1IE &= ~UCTXIFG;
 }
-
+#endif
+#endif
 
 
 //lpm_msp430_enter functions for board PN1240.00
@@ -421,7 +424,8 @@ static void lpm_msp430_enter(void) {
 #endif
 
 
-
+#ifndef SERIAL_LINE_USB
+#if CAN_GO_TO_SLEEP
 static void lpm_uart_exit() {
 	P4SEL |= BIT4|BIT5;  	// P4.5 4.6 = USCI_A1 TXD/RXD
 
@@ -431,6 +435,8 @@ static void lpm_uart_exit() {
 	UCA1CTL1 &= ~UCSWRST;	/* Initialize USCI state machine **before** enabling interrupts */
 	UCA1IE |= UCRXIE;		/* Enable UCA1 RX interrupt */
 }
+#endif
+#endif
 
 static void lpm_msp430_exit(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO

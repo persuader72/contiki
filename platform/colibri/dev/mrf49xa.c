@@ -470,15 +470,12 @@ PROCESS_THREAD(mrf49xa_process, ev, data) {
 			DUMP(0x1f10,32);
 			memcpy(packetbuf_dataptr(),mrf49xabuf,last_packet_len-2);
 			packetbuf_set_datalen(last_packet_len-2);
+#if DEBUG
 			PRINTF("recv len: %d\n",last_packet_len-2);
 
-#if 0
 			int i;
 			for(i=0;i<last_packet_len;i++){
-			if (( ((char *)mrf49xabuf)[i] >= ' ') && (((char *)mrf49xabuf)[i] <= '~') )
-				PRINTF ("%c",((char *)mrf49xabuf)[i]);
-			else
-				PRINTF (" 0x%02x",((uint8_t *)mrf49xabuf)[i]);
+				PRINTF (" %.02x",((uint8_t *)mrf49xabuf)[i]);
 			}
 			PRINTF ("\n");
 #endif
@@ -586,12 +583,9 @@ prepare(const void *payload, unsigned short payload_len)
 	//MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
 	MRF49XA_DISABLE_FIFOP_INT();
 #if DEBUG
-	PRINTF("len: %d\n",payload_len);
+	PRINTF("out data len: %d\n",payload_len);
 	for (i=0;i<payload_len;i++){
-		if (( ((char *)payload)[i] >= ' ') && (((char *)payload)[i] <= '~') )
-			PRINTF ("%c",((char *)payload)[i]);
-		else
-			PRINTF (" 0x%02x",((uint8_t *)payload)[i]);
+			PRINTF (" %.02x",((uint8_t *)payload)[i]);
 	}
 	PRINTF ("\n");
 #endif
@@ -704,7 +698,7 @@ pending_packet(void)
 }
 /*---------------------------------------------------------------------------*/
 static int on(void) {
-
+#if CAN_GO_TO_SLEEP
 	resetRadioFlags();
 	//leds_on(LEDS_BLUE);
 	//spi_init();
@@ -739,11 +733,15 @@ static int on(void) {
 	/*if(POR){
 		clock_wait(30);
 		POR = 0;
-	}
+	}*/
+
 	// antenna tuning on startup
 	setReg(MRF49XA_PMCREG,     0x21);	// turn on the transmitter
-	clock_wait(3);						// wait 10ms for oscillator to stablize*/
+	clock_delay(40000);                 // wait for oscillator to turn on
 	setReg(MRF49XA_PMCREG,     0xd9);	// turn off transmitter, turn on receiver
+	gencreg &= 0x3F;                    // leave FBS+LCS bit unchanged
+	gencreg |= 0x40;
+    setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 
 	setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
 	setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
@@ -754,11 +752,12 @@ static int on(void) {
 	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
 	SPI_WRITE(0xAB);
 	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
-
+#endif
 	return 0;
 }
 /*---------------------------------------------------------------------------*/
 static int off(void) {
+#if CAN_GO_TO_SLEEP
 	PRINTF("radio off\n");
 
 	adcOff();
@@ -780,6 +779,7 @@ static int off(void) {
 	P3DIR |= BIT3; P3OUT &= ~BIT3;
 	P2DIR |= BIT7; P2OUT &= ~BIT7;*/
 	//P3DIR &= ~BIT4;
+#endif
 	return 0;
 }
 /*---------------------------------------------------------------------------*/

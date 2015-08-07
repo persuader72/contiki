@@ -76,14 +76,14 @@ infomem_write(void *data, unsigned int offset, unsigned char size )
   int s;
 
   if(offset%INFOMEM_BLOCK_SIZE + size >= 128) return 0;
-  flash = (uint32_t *)(INFOMEM_START + offset/INFOMEM_BLOCK_SIZE);
+  flash = (uint32_t *)(INFOMEM_START + (offset/INFOMEM_BLOCK_SIZE)*INFOMEM_BLOCK_SIZE);
 
   s = splhigh();
 
   /* backup into RAM */
   memcpy(backup, flash, INFOMEM_BLOCK_SIZE);
 
-  bufdata = ((uint8_t *)backup) + offset;
+  bufdata = ((uint8_t *)backup) + offset%INFOMEM_BLOCK_SIZE;
   memcpy(bufdata, data, size);
 
 
