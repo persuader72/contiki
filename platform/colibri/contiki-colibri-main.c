@@ -134,6 +134,7 @@ static void lpm_uart_enter(void) {
 void colibriPortInit(){
 
 }
+#if CAN_GO_TO_SLEEP
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
@@ -199,12 +200,14 @@ static void lpm_msp430_enter(void) {
 	PJOUT = 0x00;
 
 }
+#endif
 
 
 #elif HW_TYPE==1
 void colibriPortInit(){
   //TODO: verificare se serve qualche implementazione particolare
 }
+#if CAN_GO_TO_SLEEP
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
@@ -263,6 +266,7 @@ static void lpm_msp430_enter(void) {
 	PJOUT = 0x00;
 
 }
+#endif
 #elif HW_TYPE == 3
 void colibriPortInit(){
 
@@ -289,6 +293,7 @@ void colibriPortInit(){
 	PWM_DCDC_PORT(DIR) |= BV(PWM_DCDC_PIN);
 
 }
+#if CAN_GO_TO_SLEEP
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 	TA1CTL  |= ID_3;    //input clock divide by 8
@@ -387,10 +392,12 @@ static void lpm_msp430_enter(void) {
 	XT2_Stop();
 
 }
+#endif
 #else
 void colibriPortInit(){
   //TODO: verificare se serve qualche implementazione particolare
 }
+#if CAN_GO_TO_SLEEP
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
 
@@ -420,6 +427,7 @@ static void lpm_msp430_enter(void) {
 	PJOUT = 0x00;
 
 }
+#endif
 
 #endif
 
@@ -438,6 +446,7 @@ static void lpm_uart_exit() {
 #endif
 #endif
 
+#if CAN_GO_TO_SLEEP
 static void lpm_msp430_exit(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_2 ; // Set ACLK = REFO
 	TA1CTL &= ~ID_3;     //input clock divide by 1
@@ -450,6 +459,7 @@ static void lpm_msp430_exit(void) {
 #endif
 #endif
 }
+
 
 static void lpm_enter(void) {
 	PRINTF("lpm_enter\n");
@@ -464,7 +474,6 @@ static void lpm_enter(void) {
 #if HW_TYPE==3
 	DCDC_LPM_ENTER;
 #endif
-
 
 }
 
@@ -484,6 +493,7 @@ static void lpm_exit(void) {
 	lpm_uart_exit();
 #endif
 }
+#endif
 
 uint16_t getRandomIntegerFromVLO(void)
 {
@@ -495,7 +505,7 @@ uint16_t getRandomIntegerFromVLO(void)
   // on msp430f53xx ACLK is connected to CCI2B
   TA0CCTL2 = CM_1 + CCIS_1 + CAP;
   TA0CTL |= TASSEL__SMCLK + MC__CONTINOUS;
-  leds_on(LEDS_RED);
+  //leds_on(LEDS_RED);
   for(i=0 ; i<16 ; i++)
   {
     // shift left result
@@ -520,7 +530,7 @@ uint16_t getRandomIntegerFromVLO(void)
   //disable timer A
   TA0CCTL2 = 0;
   TA0CTL   = 0;
-  leds_off(LEDS_RED);
+  //leds_off(LEDS_RED);
 
   return result;
 }
@@ -561,22 +571,33 @@ int main(void) {
     process_start(&etimer_process, NULL);
     ctimer_init();
 
-	uint8_t i;
-	for(i=0;i<4;i++){
+	/*uint8_t i;
+	for(i=3;i!=0;i--){
 		leds_off(LEDS_ALL);
 		switch(i){
-		case 0:
+		case 3:
 			leds_on(LEDS_RED);
 			break;
-		case 1:
+		case 2:
 			leds_on(LEDS_GREEN);
 			break;
-		case 2:
+		case 1:
 			leds_on(LEDS_YELLOW);
 			break;
 		}
-		clock_wait(20);
-	}
+		clock_wait(128);
+	}*/
+
+
+    uint8_t i;
+    uint8_t leds[]={LEDS_BLUE,LEDS_GREEN,LEDS_RED,LEDS_BLUE};
+
+    for(i=3;i!=0;i--){
+    	clock_wait(13);
+    	leds_off(leds[i]);
+    }
+
+
 
     adc_init();
     set_rime_addr();
@@ -637,35 +658,62 @@ int main(void) {
           r = process_run();
         } while(r > 0);
         int s = splhigh();		/* Disable interrupts. */
-#ifdef SERIAL_LINE_USB
-        if(process_nevents() != 0 /*|| uart1_active()*/) {
+        if(process_nevents() != 0
+    #ifdef SERIAL_LINE_USB
+        		) {
+    #else
+    	|| uart1_active() ){
+    #endif
         	splx(s);			/* Re-enable interrupts. */
         } else {
-#if HW_TYPE==3
-		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) 	lpm_enter();
-		watchdog_stop();
-		(lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
-		watchdog_start();
-		if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
-#else
+
+    #if CAN_GO_TO_SLEEP
+    		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) 	lpm_enter();
+    		watchdog_stop();
+    		(lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
+    		watchdog_start();
+    		if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
+    #else
             watchdog_stop();
+            __bis_SR_register(GIE | LPM0_bits);
             watchdog_start();
-#endif
+    #endif
         }
-#else
-        if(process_nevents() != 0 || uart1_active()) {
-        	splx(s);			/* Re-enable interrupts. */
-        } else {
-        	if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
-            watchdog_stop();
-            (lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
-            watchdog_start();
-            if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
-        }
-#endif
-        /*if(events_available()) {
-            process_events();
-        }*/
+
+
+
+
+//#ifdef SERIAL_LINE_USB
+//        if(process_nevents() != 0 /*|| uart1_active()*/) {
+//        	splx(s);			/* Re-enable interrupts. */
+//        } else {
+//#if HW_TYPE==3
+//		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) 	lpm_enter();
+//		watchdog_stop();
+//		(lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
+//		watchdog_start();
+//		if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
+//#else
+//            watchdog_stop();
+//            watchdog_start();
+//#endif
+//        }
+//#else
+//        if(process_nevents() != 0 || uart1_active()) {
+//        	splx(s);			/* Re-enable interrupts. */
+//        } else {
+//        	if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
+//            watchdog_stop();
+//            (lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
+//            watchdog_start();
+//            if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
+//        }
+//#endif
+
     }
 }
+
+
+
+
 

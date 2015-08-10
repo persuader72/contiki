@@ -17,6 +17,7 @@
 #include <stdio.h>
 #define PRINTF(...) printf(__VA_ARGS__)
 #define DUMP(...) dump(__VA_ARGS__)
+//note: also define  USE_DUMP in utils.c
 #else
 #define PRINTF(...) do {} while (0)
 #define DUMP(...)
