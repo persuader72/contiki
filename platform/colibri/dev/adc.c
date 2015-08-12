@@ -21,6 +21,7 @@ uint8_t getAdcStatus(){
 
 void adc_init(void)
 {
+	//TODO: verificare il tempo di campionamento dell'ADC10
 	PRINTF("adc_init: REFCTL0 %.4x\n",REFCTL0);              // If ref generator busy, WAIT
 #ifdef __MSP430_HAS_ADC10_A__
 	  //WDTCTL = WDTPW | WDTHOLD;                 // Stop WDT
@@ -36,7 +37,7 @@ void adc_init(void)
 #ifdef __MSP430_HAS_ADC12_PLUS__
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
-	  ADC12CTL0 = ADC12SHT01 | ADC12ON;         // 16 ADC10CLKs; ADC ON
+	  ADC12CTL0 = ADC12SHT0_8 | ADC12ON;         // 16 ADC10CLKs; ADC ON
 	  ADC12CTL1 = ADC12SHP | ADC12CONSEQ_0;     // s/w trig, single ch/conv
 	  ADC12CTL2 = ADC12RES_1 | ADC12REFBURST;                   // 10-bit conversion results (for compatibility with ADC10)
 	  ADC12MCTL0 = ADC12SREF_1 | ADC12INCH_10;  // AVcc/2
