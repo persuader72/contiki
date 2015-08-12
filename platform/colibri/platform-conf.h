@@ -157,6 +157,10 @@ typedef unsigned long off_t;
 #define DCDC_LPM_ENTER PWM_DCDC_PORT(OUT) &= ~ BV(PWM_DCDC_PIN)
 #define DCDC_LPM_EXIT  PWM_DCDC_PORT(OUT) |=   BV(PWM_DCDC_PIN)
 
+#define VEXT_PRES_PORT(type)     P1##type
+#define VEXT_PRES_PIN            3
+#define VEXT_PRES                (VEXT_PRES_PORT(IN) & (BV(VEXT_PRES_PIN)) ) ? 0 : 1
+
 #endif
 
 

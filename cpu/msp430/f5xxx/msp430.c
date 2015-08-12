@@ -245,6 +245,16 @@ msp430_cpu_init(void)
   dint();
   watchdog_init();
   init_ports();
+#if HW_TYPE == 3
+  //aggiunta per mettere i DCDC in alta potenza (PWM alto) edirglidi rimanere acceso
+	PWRON_DCDC_PORT(OUT) |= BV(PWRON_DCDC_PIN);
+	PWRON_DCDC_PORT(DIR) |= BV(PWRON_DCDC_PIN);
+
+	// pwm input of dcdc converter high -> max power
+	PWM_DCDC_PORT(OUT) |= BV(PWM_DCDC_PIN);
+	PWM_DCDC_PORT(DIR) |= BV(PWM_DCDC_PIN);
+#endif
+
 #ifdef CONTIKI_TARGET_COLIBRI
   msp430f53xx_init_dco();
 #else
