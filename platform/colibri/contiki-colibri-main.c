@@ -680,40 +680,5 @@ int main(void) {
     #endif
         }
 
-
-
-
-//#ifdef SERIAL_LINE_USB
-//        if(process_nevents() != 0 /*|| uart1_active()*/) {
-//        	splx(s);			/* Re-enable interrupts. */
-//        } else {
-//#if HW_TYPE==3
-//		if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) 	lpm_enter();
-//		watchdog_stop();
-//		(lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
-//		watchdog_start();
-//		if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
-//#else
-//            watchdog_stop();
-//            watchdog_start();
-//#endif
-//        }
-//#else
-//        if(process_nevents() != 0 || uart1_active()) {
-//        	splx(s);			/* Re-enable interrupts. */
-//        } else {
-//        	if(IS_LPM_REQUESTED(LPM_IS_DISABLED)) lpm_enter();
-//            watchdog_stop();
-//            (lpm_active()) ? __bis_SR_register(GIE | LPM4_bits) : __bis_SR_register(GIE | LPM0_bits) ;
-//            watchdog_start();
-//            if(IS_LPM_REQUESTED(LPM_IS_ENABLED)) lpm_exit();
-//        }
-//#endif
-
     }
 }
-
-
-
-
-
