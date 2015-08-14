@@ -63,7 +63,7 @@ static void set_rime_addr(void) {
 
 #ifdef SERIAL_LINE_USB
 void init_clock(void) {
-    //enable XT2 pins for F5529
+    //enable XT2 pins
     P5SEL |= 0x0C;
 
     //use REFO for FLL and ACLK

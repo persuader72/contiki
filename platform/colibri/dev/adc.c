@@ -28,7 +28,7 @@ void adc_init(void)
 
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
-	  ADC10CTL0 = ADC10SHT_2 | ADC10ON;         // 16 ADC10CLKs; ADC ON
+	  ADC10CTL0 = ADC10SHT_8 | ADC10ON;         // 16 ADC10CLKs; ADC ON
 	  ADC10CTL1 = ADC10SHP | ADC10CONSEQ_0;     // s/w trig, single ch/conv
 	  ADC10CTL2 = ADC10RES;                     // 10-bit conversion results
 	  ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2
