@@ -168,12 +168,21 @@ BYTE USB_handleEnumCompleteEvent ()
  * This event indicates that data has been received for interface intfNum, but no data receive operation is underway.
  * returns TRUE to keep CPU awake
  */
+#if COLIBRI_CDC_NUM == 2
+#define INTFNUM intfNum
+unsigned short lastUsbInterface = CDC0_INTFNUM;
+#else
+#define INTFNUM CDC0_INTFNUM
+#endif
 BYTE USBCDC_handleDataReceived (BYTE intfNum)
 {
     //TO DO: You can place your code here
+#if COLIBRI_CDC_NUM == 2
+	lastUsbInterface = intfNum;
+#endif
     char msg[BUFSIZE];
     //Get the next piece of the string
-    int msg_len = cdcReceiveDataInBuffer((BYTE*)msg,BUFSIZE - 1,CDC0_INTFNUM);
+    int msg_len = cdcReceiveDataInBuffer((BYTE*)msg,BUFSIZE - 1,INTFNUM);
     msg[msg_len] = 0;
 
     int i;

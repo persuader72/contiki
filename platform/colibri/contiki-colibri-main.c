@@ -597,8 +597,6 @@ int main(void) {
     	leds_off(leds[i]);
     }
 
-
-
     adc_init();
     set_rime_addr();
 #ifdef USE_MRF49XA

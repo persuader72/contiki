@@ -79,13 +79,11 @@ BOOL PHDCIsReceiveInProgress(BYTE);
 __interrupt VOID iUsbInterruptHandler(VOID)
 {
     BYTE bWakeUp = FALSE;
-    //P1OUT |= BIT6;
     //Check if the setup interrupt is pending.
     //We need to check it before other interrupts,
     //to work around that the Setup Int has lower priority then Input Endpoint 0
     if (USBIFG & SETUPIFG)
     {
-      
         bWakeUp = SetupPacketInterruptHandler();  
         USBIFG &= ~SETUPIFG;    // clear the interrupt bit
     }   
@@ -97,7 +95,6 @@ __interrupt VOID iUsbInterruptHandler(VOID)
       __no_operation();
       break;
     case USBVECINT_PLL_LOCK:
-
       break;
     case USBVECINT_PLL_SIGNAL:
       break;
@@ -169,6 +166,10 @@ __interrupt VOID iUsbInterruptHandler(VOID)
     case USBVECINT_INPUT_ENDPOINT3:
       break;
     case USBVECINT_INPUT_ENDPOINT4:
+#if COLIBRI_CDC_NUM == 2
+      //send saved bytes from buffer...
+      bWakeUp = CdcToHostFromBuffer(CDC1_INTFNUM);
+#endif
       break;
     case USBVECINT_INPUT_ENDPOINT5:
       break;
@@ -196,6 +197,21 @@ __interrupt VOID iUsbInterruptHandler(VOID)
     case USBVECINT_OUTPUT_ENDPOINT3:
       break;
     case USBVECINT_OUTPUT_ENDPOINT4:
+#if COLIBRI_CDC_NUM == 2
+      //call callback function if no receive operation is underway
+      if (!CdcIsReceiveInProgress(CDC1_INTFNUM) && USBCDC_bytesInUSBBuffer(CDC1_INTFNUM))
+      {
+          if (wUsbEventMask & kUSB_dataReceivedEvent)
+          {
+              bWakeUp = USBCDC_handleDataReceived(CDC1_INTFNUM);
+          }
+      }
+      else
+      {
+          //complete receive opereation - copy data to user buffer
+          bWakeUp = CdcToBufferFromHost(CDC1_INTFNUM);
+      }
+#endif
       break;
     case USBVECINT_OUTPUT_ENDPOINT5:
       break;
@@ -206,18 +222,11 @@ __interrupt VOID iUsbInterruptHandler(VOID)
     default:
       break;
     }
-
-    //P1OUT &= ~BIT6;
-
     if (bWakeUp)
     {
     	 __bic_SR_register_on_exit(LPM3_bits);   // Exit LPM0-3
     	 __no_operation();                       // Required for debugger
     }
-
-
-
-
 }
 
 /*----------------------------------------------------------------------------+

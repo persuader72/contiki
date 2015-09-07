@@ -784,7 +784,7 @@ BYTE USB_suspend (VOID)
 
 BYTE USB_resume (VOID)
 {
-    volatile unsigned int i;
+    //volatile unsigned int i;
 
     USB_enable();                       //enable PLL
 

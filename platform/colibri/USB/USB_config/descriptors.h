@@ -38,6 +38,12 @@ extern "C"
 {
 #endif
 
+#ifndef COLIBRI_CDC_NUM
+#define COLIBRI_CDC_NUM 1
+#endif
+
+extern unsigned short lastUsbInterface;
+
 /*-----------------------------------------------------------------------------+
 | Include files                                                                |
 |-----------------------------------------------------------------------------*/
@@ -56,7 +62,11 @@ extern "C"
 // Configuration Constants that can change
 // #define that relates to Device Descriptor
 #define USB_VID               0x2047        // Vendor ID (VID)
-#define USB_PID               0x03df        // Product ID (PID)
+#if COLIBRI_CDC_NUM == 2
+#define USB_PID               0x03e0        // Product ID (PID)
+#else
+#define USB_PID               0x03e1        // Product ID (PID)
+#endif
 /*----------------------------------------------------------------------------+
 | Firmware Version                                                            |
 | How to detect version number of the FW running on MSP430?                   |
@@ -71,9 +81,13 @@ extern "C"
 #define USB_STR_INDEX_SERNUM  3             
  #define PHDC_ENDPOINTS_NUMBER               2  // bulk in, bulk out
 
-
+#if COLIBRI_CDC_NUM == 2
+#define DESCRIPTOR_TOTAL_LENGTH             141    // wTotalLength, This is the sum of configuration descriptor length  + CDC descriptor length  + HID descriptor length
+#define USB_NUM_INTERFACES                  4    // Number of implemented interfaces.
+#else
 #define DESCRIPTOR_TOTAL_LENGTH            67            // wTotalLength, This is the sum of configuration descriptor length  + CDC descriptor length  + HID descriptor length
 #define USB_NUM_INTERFACES                  2    // Number of implemented interfaces.
+#endif
 
 #define CDC0_COMM_INTERFACE                0              // Comm interface number of CDC0
 #define CDC0_DATA_INTERFACE                1              // Data interface number of CDC0
@@ -81,24 +95,36 @@ extern "C"
 #define CDC0_OUTEP_ADDR                    0x02           // Output Endpoint Address of CDC0
 #define CDC0_INEP_ADDR                     0x82           // Input Endpoint Address of CDC0
 
-#define CDC_NUM_INTERFACES                   1           //  Total Number of CDCs implemented. should set to 0 if there are no CDCs implemented.
+#define CDC1_COMM_INTERFACE                2              // Comm interface number of CDC1
+#define CDC1_DATA_INTERFACE                3              // Data interface number of CDC1
+#define CDC1_INTEP_ADDR                    0x83           // Interrupt Endpoint Address of CDC1
+#define CDC1_OUTEP_ADDR                    0x04           // Output Endpoint Address of CDC1
+#define CDC1_INEP_ADDR                     0x84           // Input Endpoint Address of CDC1
+
+#define CDC_NUM_INTERFACES     COLIBRI_CDC_NUM           //  Total Number of CDCs implemented. should set to 0 if there are no CDCs implemented.
 #define HID_NUM_INTERFACES                   0           //  Total Number of HIDs implemented. should set to 0 if there are no HIDs implemented.
 #define MSC_NUM_INTERFACES                   0           //  Total Number of MSCs implemented. should set to 0 if there are no MSCs implemented.
 #define PHDC_NUM_INTERFACES                  0           //  Total Number of PHDCs implemented. should set to 0 if there are no PHDCs implemented.
 // Interface numbers for the implemented CDSs and HIDs, This is to use in the Application(main.c) and in the interupt file(UsbIsr.c).
 #define CDC0_INTFNUM                0
+#define CDC1_INTFNUM                1
 #define MSC_MAX_LUN_NUMBER                   1           // Maximum number of LUNs supported
 
 #define PUTWORD(x)      ((x)&0xFF),((x)>>8)
 
-#define USB_OUTEP_INT_EN BIT0 | BIT2 
-#define USB_INEP_INT_EN BIT0 | BIT1 | BIT2 
+#if COLIBRI_CDC_NUM == 2
+#define USB_OUTEP_INT_EN BIT0 | BIT2 | BIT4 
+#define USB_INEP_INT_EN BIT0 | BIT1 | BIT2 | BIT3 | BIT4 
+#else
+#define USB_OUTEP_INT_EN BIT0 | BIT2
+#define USB_INEP_INT_EN BIT0 | BIT1 | BIT2
+#endif
 // MCLK frequency of MCU, in Hz
 // For running higher frequencies the Vcore voltage adjustment may required.
 // Please refer to Data Sheet of the MSP430 device you use
-#define USB_MCLK_FREQ 12000000                // MCLK frequency of MCU, in Hz
+#define USB_MCLK_FREQ 12000000               // MCLK frequency of MCU, in Hz
 #define USB_PLL_XT        2                  // Defines which XT is used by the PLL (1=XT1, 2=XT2)
-#define USB_XT_FREQ_VALUE       24.0   // Indicates the freq of the crystal on the oscillator indicated by USB_PLL_XT
+#define USB_XT_FREQ_VALUE       24   // Indicates the freq of the crystal on the oscillator indicated by USB_PLL_XT
 #define USB_XT_FREQ       USBPLL_SETCLK_24_0  // Indicates the freq of the crystal on the oscillator indicated by USB_PLL_XT
 #define USB_DISABLE_XT_SUSPEND 1             // If non-zero, then USB_suspend() will disable the oscillator
                                              // that is designated by USB_PLL_XT; if zero, USB_suspend won't
@@ -116,7 +142,7 @@ extern "C"
 
 // Controls whether the application is self-powered to any degree.  Should be
 // set to 0x40, unless the USB device is fully supplied by the bus.
-#define USB_SUPPORT_SELF_POWERED 0x80
+#define USB_SUPPORT_SELF_POWERED 0xc0
 
 // Controls what the device reports to the host regarding how much power it will
 // consume from VBUS.  Expressed in 2mA units; that is, the number of mA
@@ -163,6 +189,17 @@ struct abromConfigurationDescriptorGenric
 /************************************************CDC Descriptor**************************/
 struct abromConfigurationDescriptorCdc
 {
+#if COLIBRI_CDC_NUM == 2
+//Interface Association Descriptor
+    BYTE bLength;                             // Size of this Descriptor in Bytes
+    BYTE bDescriptorType;                     // Descriptor Type (=11)
+    BYTE bFirstInterface;                     // Interface number of the first one associated with this function
+    BYTE bInterfaceCount;                     // Numver of contiguous interface associated with this function
+    BYTE bFunctionClass;                      // The class triad of this interface,
+    BYTE bFunctionSubClass;                   // usually same as the triad of the first interface
+    BYTE bFunctionProcotol;
+    BYTE iInterface;                          // Index of String Desc for this function
+#endif
 // interface descriptor (9 bytes)
     BYTE blength_intf;	                      // blength: interface descriptor size
     BYTE desc_type_interface;	              // bdescriptortype: interface

@@ -18,15 +18,20 @@
 //extern uint8_t usb_printf_state;
 uint8_t outBuff[BUFSIZE];
 uint8_t outBuffPos=0;
-
+#if COLIBRI_CDC_NUM == 2
+#define INTERFACE lastUsbInterface
+#else
+#define INTERFACE CDC0_INTFNUM
+#endif
 int putchar(int c) {
 	//uint8_t ch = (uint8_t)c;
     //if(usb_printf_state == USB_DISABLED) return -1;
     //if(usb_printf_state == USB_LOCKED) return -1;
     //usb_printf_state = USB_LOCKED;
+
 	outBuff[outBuffPos++] = c;
 	if(c=='\n'||outBuffPos==BUFSIZE) {
-		cdcSendDataWaitTilDone(outBuff,outBuffPos, CDC0_INTFNUM, 5000);
+		cdcSendDataWaitTilDone(outBuff,outBuffPos, INTERFACE, 5000);
 		outBuffPos=0;
 	}
 	//usb_printf_state = USB_ENABLED;
