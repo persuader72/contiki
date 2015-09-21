@@ -601,20 +601,24 @@ int main(void) {
     set_rime_addr();
 #ifdef USE_MRF49XA
     {
-#ifdef RADIO_CRC_ENABLED
+ #ifdef COLIBRI_USE_POWERUP_FREQ_SLOT
+    	mrf49xa_init(MRF49XA_57600, MRF49XA_TXPWR_0DB, MRF49XA_DEF_BAND, MRF49XA_DEF_CHANNEL);
+ #else
+  #ifdef RADIO_CRC_ENABLED
     	PRINTF("crc expected: %.4x\n",crcCalc((uint8_t *)&INFOMEM_STRUCT_A->radio,sizeof(INFOMEM_STRUCT_A->radio)));
     	if(crcCheck((uint8_t *)&INFOMEM_STRUCT_A->radio,sizeof(INFOMEM_STRUCT_A->radio))){
     		PRINTF("infomem radio settings crc ok\n");
-#endif
+  #endif
 			uint8_t baud  = INFOMEM_STRUCT_A->radio.baudRate == 0xFF ? MRF49XA_57600 : INFOMEM_STRUCT_A->radio.baudRate;
 			uint8_t txpwr = INFOMEM_STRUCT_A->radio.txPower == 0xFF ? MRF49XA_TXPWR_0DB : INFOMEM_STRUCT_A->radio.txPower;
 			mrf49xa_init(baud,txpwr,INFOMEM_STRUCT_A->radio.band,INFOMEM_STRUCT_A->radio.channel);
-#ifdef RADIO_CRC_ENABLED
+  #ifdef RADIO_CRC_ENABLED
     	}else{
     		PRINTF("infomem radio settings crc FAIL\n");
     		mrf49xa_init(MRF49XA_57600, MRF49XA_TXPWR_0DB, MRF49XA_DEF_BAND, MRF49XA_DEF_CHANNEL);
     	}
-#endif
+  #endif
+ #endif
     }
 #endif
 	//to avoid errata read from flash that sometimes occour at powerup (tapullo)

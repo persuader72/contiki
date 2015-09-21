@@ -54,6 +54,11 @@ static clock_time_t timeout;
 //1 tick equal to 49 byte.
 #define TIMEOUT_TICKS 6
 
+uint16_t buffStatus;
+#define BUFF_IDLE  0
+#define BUFF_READY 1
+#define BUFF_BUSY  2
+
 
 /*---------------------------------------------------------------------------*/
 PROCESS(mrf49xa_process, "Mrf49xa driver");
@@ -371,6 +376,8 @@ mrf49xa_interrupt(void)
 	    	 readSR(&reg);
 		 }
 		 else{//DIO status low indicates that there are valid data on radio fifo
+			 if(buffStatus == BUFF_IDLE)
+				 buffStatus = BUFF_READY;
 			 mrf49xaptr=mrf49xabuf;
 			 mrf49xa_start_time=RTIMER_NOW();
 			 //reset delle medie dei campioni dell'RSSI
@@ -379,7 +386,6 @@ mrf49xa_interrupt(void)
 			 timeout = clock_time()+TIMEOUT_TICKS; //set packet timeout
 			 leds_off(LEDS_RED);
 		 }
-
 	 }
 	 else{ //should never occour. To be verified.
 		 mrf49xa_recvlen=mrf49xa_pending = 0;
@@ -399,7 +405,8 @@ mrf49xa_interrupt(void)
  	 leds_on(LEDS_RED);
   }
   else {
-     *mrf49xaptr++ = mrf49xa_get_byte();
+	  if(buffStatus == BUFF_READY)
+		  *mrf49xaptr++ = mrf49xa_get_byte();
      //rssiSample++;
      adcStatus = getAdcStatus();
      if (!(adcStatus & HIGH_PRIORITY_LOCK)){
@@ -425,7 +432,12 @@ mrf49xa_interrupt(void)
     	 /*for (i=0;i<mrf49xa_recvlen;i++)
     		 PRINTF("%c",*(mrf49xabuf+i));
     	 PRINTF("\n");*/
-    	 process_poll(&mrf49xa_process);
+    	 if(buffStatus == BUFF_READY)
+    	 {
+        	 buffStatus = BUFF_BUSY;
+        	 process_poll(&mrf49xa_process);
+    	 }
+
      }
   }
   return 1;
@@ -504,7 +516,8 @@ PROCESS_THREAD(mrf49xa_process, ev, data) {
 			PRINTF("mrf49xa_process: input\n");
 			NETSTACK_RDC.input();
 		}
-		mrf49xa_pending = 0;
+		buffStatus = BUFF_IDLE;
+		//mrf49xa_pending = 0;
 		MRF49XA_ENABLE_FIFOP_INT();
 	}
 	PROCESS_END();
