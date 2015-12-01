@@ -730,13 +730,8 @@ static int on(void) {
 	//interrupt is input pin
 	//MRF49XA_INT_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
 
-	MRF49XA_DISABLE_FIFOP_INT();
-	MRF49XA_EDGE_FALL_INT();
-	MRF49XA_CLEAR_FIFOP_INT();
-	MRF49XA_ENABLE_FIFOP_INT();
-
-	/*P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
-	P2SEL |= BIT7;                            // P2.7 option select*/
+	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
+	P2SEL |= BIT7;                            // P2.7 option select
 	P2IFG = 0;
 
 	/* XXX Clear pending interrupts before enable */
@@ -760,12 +755,23 @@ static int on(void) {
 	setReg(MRF49XA_FIFORSTREG,   0); //RegisterSet(FIFORSTREG);
 	setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
 	uint16_t reg;
-	readSR(&reg);                     //serve a far tornare alto IRQ*/
+	readSR(&reg);                     //serve a far tornare alto IRQ
 	clock_delay(150);                 //TODO verificare attesa di 250us
 
 	AT25F512B_PORT(OUT) &=  ~BV(AT25F512B_CS) ;
 	SPI_WRITE(0xAB);
 	AT25F512B_PORT(OUT) |=  BV(AT25F512B_CS) ;
+
+//	MRF49XA_DISABLE_FIFOP_INT();
+	MRF49XA_EDGE_FALL_INT();
+	MRF49XA_CLEAR_FIFOP_INT();
+	MRF49XA_ENABLE_FIFOP_INT();
+
+//	MRF49XA_DISABLE_DIO_INT();
+	MRF49XA_EDGE_FALL_DIO_INT();
+	MRF49XA_CLEAR_DIO_INT();
+	MRF49XA_ENABLE_DIO_INT();
+
 #endif
 	return 0;
 }
@@ -787,12 +793,18 @@ static int off(void) {
 	setReg(MRF49XA_PMCREG,     0x0);
 	//clock_wait(30);
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
-	/*P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
+	P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
 	P2SEL &= ~BIT7;
 	// P2.7 option select
-	P3DIR |= BIT3; P3OUT &= ~BIT3;
+	/*P3DIR |= BIT3; P3OUT &= ~BIT3;
 	P2DIR |= BIT7; P2OUT &= ~BIT7;*/
 	//P3DIR &= ~BIT4;
+	MRF49XA_DISABLE_FIFOP_INT();
+	MRF49XA_CLEAR_FIFOP_INT();
+
+	MRF49XA_DISABLE_DIO_INT();
+	MRF49XA_CLEAR_DIO_INT();
+
 #endif
 	return 0;
 }

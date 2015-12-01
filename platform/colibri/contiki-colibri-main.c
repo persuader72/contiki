@@ -340,6 +340,11 @@ static void lpm_msp430_enter(void) {
 #endif
 
 	//---------------------------- gestione porta 3 ---------------------------------
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	//       |       |       | SDO   | SDI   | CS    | CS    |EPD_CS |
+	//       |       |       |       |       | RF    | FLASH | COG   |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
 	P3DIR = 0xEF;           //all output
 
 	//---------------------------- gestione porta 4 ---------------------------------
@@ -372,7 +377,7 @@ static void lpm_msp430_enter(void) {
 
 	P1OUT = 0x00;
 	P2OUT = BIT5;
-	P3OUT = BIT2|BIT1;  //CS_FLASH + CS_RADIO
+	P3OUT = 0xFF; //BIT2|BIT1;  //CS_FLASH + CS_RADIO
 	P4OUT = 0x00;
 	P5OUT = 0xFF;
 	P6OUT = BIT3 | BIT2;
@@ -485,7 +490,7 @@ static void lpm_exit(void) {
 
 	lpm_msp430_exit();
 #if HW_TYPE==3
-	m25pe16_DP(m25pe16b_DPoff);
+	//m25pe16_DP(m25pe16b_DPoff);acac
 #if COLIBRI_HAS_KINETIC
 	//kineticSleep(TRUE);
 #endif
