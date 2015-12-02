@@ -596,6 +596,8 @@ prepare(const void *payload, unsigned short payload_len)
 
 	//MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
 	MRF49XA_DISABLE_FIFOP_INT();
+	MRF49XA_DISABLE_DIO_INT();
+
 #if DEBUG
 	PRINTF("out data len: %d\n",payload_len);
 	for (i=0;i<payload_len;i++){
@@ -667,6 +669,10 @@ prepare(const void *payload, unsigned short payload_len)
     MRF49XA_IRQ_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
     MRF49XA_CLEAR_FIFOP_INT();
 	MRF49XA_ENABLE_FIFOP_INT();
+
+	MRF49XA_CLEAR_DIO_INT();
+	MRF49XA_ENABLE_DIO_INT();
+
 
 
   //putchar('\n');
