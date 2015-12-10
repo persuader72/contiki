@@ -13,6 +13,33 @@ typedef union _magCmdWord_t
     } bitval;
 }magCmdWord_t;
 
+// ************************ MAGNETOMETER SPI macros **********************************
+//start spi write asserting CS and leave asserted
+#define K_MAG_SPI_START(data) \
+  do {  \
+	SPI_WAITFORTx_BEFORE(); \
+    K_MAG_SPI_ENABLE(); \
+    SPI_WRITE(data); \
+  } while(0)
+
+
+//stop spi after byte write deasserting CS
+#define K_MAG_SPI_STOP(data) \
+  do { \
+	SPI_WAITFORTx_BEFORE(); \
+    SPI_WRITE(data); \
+    K_MAG_SPI_DISABLE(); \
+  } while(0)
+
+
+#define K_MAG_SPI_READ_STOP(data) \
+  do { \
+	SPI_WAITFORTx_BEFORE(); \
+    SPI_WRITE(*data); \
+    *data = (SPI_RXBUF); \
+     K_MAG_SPI_DISABLE(); \
+  } while(0)
+
 #define LIS3MDL_READ  1
 #define LIS3MDL_WRITE 0
 
@@ -32,6 +59,7 @@ typedef union _magCmdWord_t
 
 
 typedef enum _magRegisters_t{
+	MagAddWhoAmI        = 0x0F,
 	MagAddrCtrlReg1		= 0x20,
 	MagAddrCtrlReg2 	= 0x21,
 	MagAddrCtrlReg3 	= 0x22,
@@ -93,6 +121,10 @@ typedef union _MAGctrlReg2_t
     	uint8_t Set0Thisbit4:1;		// Always set this bit to 0
   	} bitval;
 } MAGctrlReg2_t;
+
+#define OM_CONTINOUS 0
+#define OM_SINGLE    1
+#define OM_POWERDOWN 3
 
 typedef union _MAGctrlReg3_t
 {
@@ -181,6 +213,8 @@ typedef union _MAGintCfgReg_t
     } bitval;
 }MAGintCfgReg_t;
 
+void ReadMagReg(magRegisters_t reg, uint8_t data[], uint16_t len);
+void WriteMagReg(magRegisters_t reg, uint8_t data[], uint16_t len);
 
 
 #endif

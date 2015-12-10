@@ -13,6 +13,16 @@
 #define PRINTF(...) do {} while (0)
 #endif
 
+#define ADC_ERROR 0x8000
+#define PULSE_DEBUG 1
+#if PULSE_DEBUG
+#define PULSE(port,bit) P##port##OUT |= BIT##bit ; \
+	P##port##OUT &= ~BIT##bit
+#else
+#define PULSE(port,bit) do {} while (0)
+#endif
+
+
 static uint8_t adcStatus;
 
 uint8_t getAdcStatus(){
@@ -37,6 +47,7 @@ void adc_init(void)
 #ifdef __MSP430_HAS_ADC12_PLUS__
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC10 - Pulse sample mode; ADC10SC trigger
+	  ADC12CTL0 &= ~ADC12ENC;
 	  ADC12CTL0 = ADC12SHT0_8 | ADC12ON;         // 16 ADC10CLKs; ADC ON
 	  ADC12CTL1 = ADC12SHP | ADC12CONSEQ_0;     // s/w trig, single ch/conv
 	  ADC12CTL2 = ADC12RES_1 | ADC12REFBURST;                   // 10-bit conversion results (for compatibility with ADC10)
@@ -47,7 +58,7 @@ void adc_init(void)
 	  while(REFCTL0 & REFGENBUSY);              // If ref generator busy, WAIT
 	  REFCTL0 |= REFVSEL_2|REFON;               // Select internal ref = 2.5V
 	                                            // Internal Reference ON
-	  clock_delay(600);                         // Delay (~75us) for Ref to settle
+	  clock_delay(1000);                         // Delay (~75us) for Ref to settle
 	  adcStatus = 0;
 	  PRINTF("end of adc_init: REFCTL0 %.4x\n",REFCTL0);              // If ref generator busy, WAIT
 }
@@ -107,13 +118,13 @@ uint16_t getAdcSample(){
 uint16_t get_adc(ADC_CH channel){
 	adcStatus = DIRTY | HIGH_PRIORITY_LOCK;
 #ifdef __MSP430_HAS_ADC10_A__
-    while (ADC10CTL1 & ADC10BUSY);          // ADC10BUSY? attendo la fine di una precedente conversione avviata
+    while (ADC10CTL1 & ADC10BUSY); // ADC10BUSY? attendo la fine di una precedente conversione avviata
 
 	if ((ADC10MCTL0 &  0xf ) != channel){
 		ADC10CTL0 &= ~ADC10ENC;
 		ADC10MCTL0 &=  0xfff0;
 		ADC10MCTL0 |= channel;  // imposto il canale
-	    clock_delay(300);       // Delay (~3us) for channel to settle
+	    clock_delay(600);       // Delay (~3us) for channel to settle
 	}
     ADC10CTL0 |= (ADC10ENC | ADC10SC);        // Sampling and conversion start
     while (ADC10CTL1 & ADC10BUSY);          // ADC10BUSY?
@@ -122,18 +133,35 @@ uint16_t get_adc(ADC_CH channel){
 #endif
 
 #ifdef __MSP430_HAS_ADC12_PLUS__
-    while (ADC12CTL1 & ADC12BUSY);          // ADC10BUSY? attendo la fine di una precedente conversione avviata
+	uint8_t busyLoops = 100;
+    while (ADC12CTL1 & ADC12BUSY){ // ADC10BUSY? attendo la fine di una precedente conversione avviata
+    	busyLoops--;
+    }
+    if (!busyLoops){
+    	ADC12CTL0 &= ~ADC12ENC; //timeout !! fermo la conversione corrente!
+    }
 
 	if ((ADC12MCTL0 &  0xf ) != channel){
 		ADC12CTL0 &= ~ADC12ENC;
 		ADC12MCTL0 &=  0xfff0;
 		ADC12MCTL0 |= channel;  // imposto il canale
-	    clock_delay(300);       // Delay (~3us) for channel to settle
+	    clock_delay(600);       // Delay (~3us) for channel to settle
 	}
-    ADC12CTL0 |= (ADC12ENC | ADC12SC);        // Sampling and conversion start
-    while (ADC12CTL1 & ADC12BUSY);          // ADC10BUSY?
+    ADC12CTL0 |= (ADC12ENC | ADC12SC);  // Sampling and conversion start
+
+    busyLoops = 100;
+    while (ADC12CTL1 & ADC12BUSY){ // attendo la fine della conversione
+    	busyLoops--;
+    	PULSE(6,4);
+    }
+
     adcStatus = DIRTY;
-    return ADC12MEM0;
+    if(!busyLoops){
+    	return ADC_ERROR;
+    	ADC12CTL0 &= ~ADC12ENC;
+    }
+    else
+    	return ADC12MEM0;
 #endif
 }
 
@@ -148,7 +176,7 @@ void adcOff(){
 #ifdef __MSP430_HAS_ADC12_PLUS__
 	  // ADCCLK è il clock interno dell'ADC pari a circa 4.8MHZ (200ns)
 	  // Configure ADC12 - Pulse sample mode; ADC10SC trigger
-	  ADC12CTL0 &= ~ADC12ENC;
+	  ADC12CTL0 &= ~(ADC12ENC | ADC12SC);
 	  ADC12CTL0 &= ~ADC12REFON;
 	  ADC12CTL0 &= ~ADC12ON;                    // ADC OFF
 	  //ADC10MCTL0 = ADC10SREF_1 | ADC10INCH_10;  // AVcc/2

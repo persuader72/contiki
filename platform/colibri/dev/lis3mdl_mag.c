@@ -36,12 +36,12 @@ void ReadMagReg(magRegisters_t reg, uint8_t data[], uint16_t len){
 	cmd.bitval.rw = LIS3MDL_READ;
 	cmd.bitval.multipleRead = LIS3MDL_MULTIPLE;
 	cmd.bitval.add = reg;
-	K_GYRO_SPI_START(cmd.val);
+	K_MAG_SPI_START(cmd.val);
 	uint16_t i=0;
 	for(i=0;i<len-1;i++){
 		 K_SPI_BYTE_READ(&(data[i]));
 	}
-	K_GYRO_SPI_READ_STOP(&(data[i]));
+	K_MAG_SPI_READ_STOP(&(data[i]));
 }
 
 void WriteMagReg(magRegisters_t reg, uint8_t data[], uint16_t len){
@@ -49,10 +49,10 @@ void WriteMagReg(magRegisters_t reg, uint8_t data[], uint16_t len){
 	cmd.bitval.rw = LIS3MDL_WRITE;
 	cmd.bitval.multipleRead = LIS3MDL_MULTIPLE;
 	cmd.bitval.add = reg;
-	K_GYRO_SPI_START(cmd.val);
+	K_MAG_SPI_START(cmd.val);
 	uint16_t i=0;
 	for(i=0;i<len-1;i++){
 		 K_SPI_BYTE_WRITE((data[i]));
 	}
-	K_GYRO_SPI_STOP((data[i]));
+	K_MAG_SPI_STOP((data[i]));
 }

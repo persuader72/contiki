@@ -593,14 +593,27 @@ int main(void) {
 		clock_wait(128);
 	}*/
 
-
+#if HW_TYPE==3
+    leds_off(LEDS_ALL);
+#define WAIT_TIME 50
+#else
+#define WAIT_TIME 13
+#endif
     uint8_t i;
     uint8_t leds[]={LEDS_BLUE,LEDS_GREEN,LEDS_RED,LEDS_BLUE};
 
     for(i=3;i!=0;i--){
-    	clock_wait(13);
+    	clock_wait(WAIT_TIME);
     	leds_off(leds[i]);
+#if HW_TYPE==3
+    	leds_on(leds[i-1]);
+#endif
     }
+#if HW_TYPE==3
+    clock_wait(WAIT_TIME);
+    leds_off(LEDS_ALL);
+#endif
+
 
     adc_init();
     set_rime_addr();

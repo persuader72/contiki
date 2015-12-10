@@ -277,10 +277,10 @@ void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch) {
 
 uint16_t mrf49xa_readRssi() {
 	uint8_t i = 8;
-	uint32_t timeout;
+	uint8_t timeout;
 	uint32_t rssi_sum = 0;
 	while(i--) {
-		timeout = 5000;
+		timeout = 200;
 		start_adc(ADC_CH7);
 		while(checkAdcBusy() && timeout) {
 			timeout--;
@@ -736,11 +736,11 @@ static int on(void) {
 	//interrupt is input pin
 	//MRF49XA_INT_PORT(DIR) &= ~BV(MRF49XA_IRQ_PIN);
 
-	P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
-	P2SEL |= BIT7;                            // P2.7 option select
+	//P3SEL |= BIT3|BIT4;                       // P3.3,4 option select
+	//P2SEL |= BIT7;                            // P2.7 option select
 	P2IFG = 0;
 
-	/* XXX Clear pending interrupts before enable */
+	/* Clear pending interrupts before enable */
 	UCA0IE &= ~UCRXIFG;
 	UCA0IE &= ~UCTXIFG;
 	UCA0CTL1 &= ~UCSWRST;                      // **Put state machine in reset**
@@ -799,8 +799,8 @@ static int off(void) {
 	setReg(MRF49XA_PMCREG,     0x0);
 	//clock_wait(30);
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
-	P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
-	P2SEL &= ~BIT7;
+	//P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
+	//P2SEL &= ~BIT7;
 	// P2.7 option select
 	/*P3DIR |= BIT3; P3OUT &= ~BIT3;
 	P2DIR |= BIT7; P2OUT &= ~BIT7;*/
