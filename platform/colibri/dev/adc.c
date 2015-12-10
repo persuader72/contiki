@@ -14,7 +14,7 @@
 #endif
 
 #define ADC_ERROR 0x8000
-#define PULSE_DEBUG 1
+#define PULSE_DEBUG 0
 #if PULSE_DEBUG
 #define PULSE(port,bit) P##port##OUT |= BIT##bit ; \
 	P##port##OUT &= ~BIT##bit
