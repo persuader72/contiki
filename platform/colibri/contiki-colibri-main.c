@@ -393,9 +393,9 @@ static void lpm_msp430_enter(void) {
 	PMMCTL0_H = PMMPW_H;                // PMM Password
 	SVSMHCTL &= ~(SVMHE+SVSHE);         // Disable High side SVS
 	SVSMLCTL &= ~(SVMLE+SVSLE);         // Disable Low side SVS
-
+#ifdef SERIAL_LINE_USB
 	XT2_Stop();
-
+#endif
 }
 #endif
 #else
@@ -470,7 +470,9 @@ static void lpm_enter(void) {
 	PRINTF("lpm_enter\n");
 	CLEAR_LPM_REQUEST(LPM_IS_ENABLED);
 #if HW_TYPE==3
-
+	#ifndef SERIAL_LINE_USB
+		lpm_uart_enter();
+	#endif
 #else
 	lpm_uart_enter();
 #endif
@@ -494,6 +496,9 @@ static void lpm_exit(void) {
 #if COLIBRI_HAS_KINETIC
 	//kineticSleep(TRUE);
 #endif
+	#ifndef SERIAL_LINE_USB
+	lpm_uart_exit();
+	#endif
 #else
 	lpm_uart_exit();
 #endif
