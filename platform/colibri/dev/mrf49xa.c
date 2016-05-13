@@ -798,7 +798,9 @@ static int off(void) {
     //setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
 	setReg(MRF49XA_PMCREG,     0x0);
 	//clock_wait(30);
+#if HW_TYPE == 3
 	UCA0CTL1 |= UCSWRST;                      // **Put state machine in reset**
+#endif
 	//P3SEL &= ~(BIT3|BIT4);                    // P3.3,4 option select
 	//P2SEL &= ~BIT7;
 	// P2.7 option select

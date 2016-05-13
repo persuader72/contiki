@@ -137,37 +137,51 @@ void colibriPortInit(){
 #if CAN_GO_TO_SLEEP
 static void lpm_msp430_enter(void) {
 	UCSCTL4 = (UCSCTL4 & ~(SELA_7)) | SELA_1 ; 		// Set ACLK = VLO
+	TA1CTL  |= ID_3;    //input clock divide by 8
+	TA1EX0 |= TAIDEX_7; //input clock divide by 8
 
 	//---------------------------- gestione porta 1 ---------------------------------
 	P1DIR |= 0xF4;
-	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 as input
+	#if COLIBRI_HAS_BUTTONS // if display leave BTN1 + BTN0 as input
 		P1DIR &= ~ (BIT0);
 		P1DIR &= ~ (BIT1);
 	#else
-		P1DIR |= (BIT0 | BIT1);  // if not display BTN1 as output
+		P1DIR |= (BIT0 | BIT1);  // if not display BTN1 + BTN0 as output
 	#endif
-	#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
+	/*#if COLIBRI_USE_BATTERY_CHARGER //if battery charger leave VEXT_PRES as input
 		P1DIR &= ~ (BIT3);
 	#else
 		P1DIR |= BIT3;// if not battery charger leave VEXT_PRES as output
-	#endif
+	#endif*/
 
 
 
 	//---------------------------- gestione porta 2 e 3 ---------------------------------
 
 	P2DIR = ~ (BIT6|BIT4);  //IRQ, INT as input
-	P3DIR = 0xFF;           //all output
+	//---------------------------- gestione porta 3 ---------------------------------
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	//       |       |       | SDO   | SDI   | CS    | CS    |EPD_CS |
+	//       |       |       |       |       | RF    | FLASH | COG   |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	P3DIR = 0xEF;           //all output
 
 	//---------------------------- gestione porta 4 ---------------------------------
-	P4DIR |= 0xC9;           //pin che posso mettere come output ce li metto.
+	//    7      6       5       4       3       2      1       0
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	// RESET | BUSY  |   RXD | TXD   | SS    | BTN3  | BTN2  |  SCK  |
+	// COG   | COG   |       |       |       |       |       |       |
+	//-------+-------+-------+-------+-------+-------+-------+-------+
+	P4OUT  = 0x10;  //TXD UART alto
+	P4DIR |= 0xD9;           //pin che posso mettere come output ce li metto.
 	                         //gli altri bit sono settati a seconda della configurazione hardware
-#if COLIBRI_USE_BUTTON_SENSOR
+/*#if COLIBRI_USE_BUTTON_SENSOR
 	P4DIR |= (BIT5 | BIT4); //uart line as output
 #else
 	P4DIR &= ~BIT5;
 	P4DIR &= ~BIT4;
-#endif
+#endif*/
 #if COLIBRI_HAS_BUTTONS//if buttons are present and board revision = 0
 	P4DIR &= ~ (BIT2);
 	P4DIR &= ~ (BIT1);
@@ -194,7 +208,6 @@ static void lpm_msp430_enter(void) {
 	P1OUT = 0x00;
 	P2OUT = BIT5;
 	P3OUT = BIT2|BIT1;
-	P4OUT = 0x00;
 	P5OUT = 0x00;
 	P6OUT = 0x00;
 	PJOUT = 0x00;
