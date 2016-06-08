@@ -243,6 +243,24 @@ typedef unsigned long off_t;
 #define LEDS_CONF_RED    BIT6 // green led
 #define LEDS_CONF_YELLOW BIT7 // yellow led
 
+#if USE_PA || TEST_PA
+//Power amplifier switch control
+#define PA_PORT(type)	P4##type
+#define PA_C1_PIN		BIT3
+#define PA_C2_PIN		BIT0
+#define INIT_PA_PORT	PA_PORT(OUT) |= (PA_C1_PIN );\
+						PA_PORT(OUT) &= ~PA_C2_PIN;\
+						PA_PORT(DIR) |= (PA_C1_PIN | PA_C2_PIN)
+
+#define PA_TX			PA_PORT(OUT) &= ~PA_C1_PIN ;\
+						PA_PORT(OUT) |= (PA_C2_PIN )
+
+
+#define PA_RX			PA_PORT(OUT) &= ~PA_C2_PIN;\
+						PA_PORT(OUT) |= (PA_C1_PIN )
+
+#endif
+
 #ifndef HW_TYPE
 #define HW_TYPE -1
 #endif

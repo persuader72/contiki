@@ -253,7 +253,7 @@ void mrf49xa_setRxRssi(mrf49xa_rxRSSI rxRSSI, mrf49xa_gainLNA gainLNA){
 // mrf49xa_setChannel(enum band, uint8_t ch)
 // this function set band and channel
 // Allowed band are 868MHz and 916MHz.
-// Allowed channel are fro 0 to 23.
+// Allowed channel are from 0 to 23.
 // channel separation: 0.828MHz @ 868MHz, 1.241MHz @ 916MHz
 
 void mrf49xa_setChannel(mrf49xa_band band, uint8_t ch) {
@@ -593,6 +593,9 @@ prepare(const void *payload, unsigned short payload_len)
 	for(i=0;i<payload_len;i++)
 		mrf49xa_print_hex_byte(((uint8_t*)payload)[i]);
 	putchar('\n');*/
+#if USE_PA
+	PA_TX;
+#endif
 
 	//MRF49XA_FSELN_PORT(OUT) |= BV(MRF49XA_FSELN_PIN);
 	MRF49XA_DISABLE_FIFOP_INT();
@@ -662,6 +665,10 @@ prepare(const void *payload, unsigned short payload_len)
     setReg(MRF49XA_GENCREG,   gencreg);    //RegisterSet(GENCREG | 0x0040 );
     setReg(MRF49XA_FIFORSTREG,    0); //RegisterSet(FIFORSTREG);
     setReg(MRF49XA_FIFORSTREG,0x82);  //RegisterSet(FIFORSTREG | 0x0082);       // enable synchron latch
+
+#if USE_PA
+	PA_RX;
+#endif
 
     uint16_t reg;
     readSR(&reg);                     //serve a far tornare alto IRQ

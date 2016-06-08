@@ -132,7 +132,9 @@ static void lpm_uart_enter(void) {
 //lpm_msp430_enter functions for board PN1240.00
 #if HW_TYPE==0
 void colibriPortInit(){
-
+#if USE_PA || TEST_PA
+	INIT_PA_PORT;
+#endif
 }
 #if CAN_GO_TO_SLEEP
 static void lpm_msp430_enter(void) {
