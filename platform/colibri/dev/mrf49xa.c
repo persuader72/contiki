@@ -210,11 +210,11 @@ void mrf49xa_setDataRate(mrf49xa_baudRate dataRate){
 		rxbw  = MRF49XA_RXBW_400KHZ;
 		modbw = MRF49XA_MODBW_240KHZ;
 		break;
-	default: //9600
+	default: //57600
 		drpe  = 0;
-		drpv  = 0x23;
-		rxbw  = MRF49XA_RXBW_270KHZ;
-		modbw = MRF49XA_MODBW_120KHZ;
+		drpv  = 0x05;
+		rxbw  = MRF49XA_RXBW_400KHZ;
+		modbw = MRF49XA_MODBW_165KHZ;
 		break;
 	}
 
